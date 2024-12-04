@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>S2DR4 TS Demo</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.5.0/nouislider.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.5.0/nouislider.min.css" rel="stylesheet" />
+    <style>
+        body { margin:0; padding:0; background: #111!important; }
+    </style>
+</head>
+<body>
+
+<style>
+    body {
+        overflow: hidden;
+    }
+
+    body * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+    }
+	
+	.mapbox-attribution-container {
+		bottom: 0;
+		right: 0;
+		position: absolute;
+		display: block;
+		margin: 0;
+		padding: 0 5px;
+		font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+		font-size: 12px;
+		line-height: 20px;
+		font-weight: normal;
+		-webkit-tap-highlight-color: rgba(0,0,0,0);
+		background-color: rgba(255, 255, 255, 0.5);
+		color: rgba(0, 0, 0, 0.75);
+	}
+	
+	.menu {
+		background: #fff;
+		position: absolute;
+		z-index: 1;
+		top: 10px;
+		border-radius: 3px;
+		width: 120px;
+		border: 1px solid rgba(0, 0, 0, 0.4);
+		font-family: 'Open Sans', sans-serif;
+	}
+	
+	#menu {
+		left: 10px;
+	}
+	
+	#menuR {
+		right: 10px;
+	}
+ 
+	.menu a {
+		font-size: 13px;
+		color: #404040;
+		display: block;
+		margin: 0;
+		padding: 0;
+		padding: 10px;
+		text-decoration: none;
+		border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+		text-align: center;
+	}
+ 
+	.menu a:last-child {
+		border: none;
+	}
+ 
+	.menu a:hover {
+		background-color: #f8f8f8;
+		color: #404040;
+	}
+ 
+	.menu a.active {
+		background-color: #3887be;
+		color: #ffffff;
+	}
+ 
+	.menu a.active:hover {
+		background: #3074a4;
+	}
+	
+    .slider-container { position: absolute; bottom: 60px; width: 80%; left: 10%; }
+    .noUi-target, .noUi-horizontal { background: #333; }
+    .noUi-connect { background: #3887be; }
+    .noUi-pips { top: 40px; color: #fff; } /* Move labels 10 pixels above the slider */
+    .noUi-pips-horizontal { transform: translateY(-100%); } /* Adjust position */
+    .noUi-marker { height: 10px; margin-top: 30px; } /* Make ticks go over the slider */
+    .slider-labels {
+        display: none; /* Hide the labels above the slider */
+    }
+    .noUi-value-large { 
+        transform: translate(-50%, 30%);
+        font-family: 'Open Sans', sans-serif;
+        text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; /* Add 1px black outline */
+    }
+    .noUi-value-sub { font-size: 14px; font-family: 'Open Sans', sans-serif; color: #fff; } /* Hide the labels below the slider */
+	
+</style>
+
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css" type="text/css"/>
+
+<nav id="menu" class="menu"></nav>
+<nav id="menuR" class="menu"></nav>
+<div id="comparison-container">
+    <div id="before" class="map"></div>
+    <div id="after" class="map"></div>
+</div>
+<div id="attribution" class="mapbox-attribution-container"></div>
+
+<div class="slider-container">
+    <div class="slider-labels" id="sliderLabels"></div>
+    <div id="dateSlider"></div>
+</div>
+
+<!--<script src='s2dr2datasets11.js'></script>-->
+<script>
+    // Function to convert date format from 'YYYYMMDD' to 'DD-Mon' for intermediate labels and 'DD-Mon-YYYY' for first and last labels
+    function formatDate(dateStr, isFirstOrLast) {
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const year = dateStr.substring(0, 4);
+        const month = months[parseInt(dateStr.substring(4, 6)) - 1];
+        const day = dateStr.substring(6, 8);
+        return isFirstOrLast ? `${day}-${month}-${year}` : `${day}-${month}`;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    ds = params.get("ds").split('-');
+    let dates = {};
+    params.get("dates").split('-').forEach((date, index) => {
+        dates[index] = date;
+    });
+    console.log(dates);
+
+    latlon = window.location.hash.split('#')[1].split('/');
+    console.log(Number(latlon[0]), Number(latlon[2]), Number(latlon[1]));
+
+    pid = ds[1] + "-" + ds[2] + "-" + ds[3];
+    root = "https://rasters.digifarm.io/v1/rasters/file/{z}/{x}/{y}.png?token=c3b3ffa9-a0fd-4a01-abdd-168b675e8800&filename=sentinel-s2dr3/" + ds[0] + "/" + ds[1] + "/" + ds[3];
+    tif = ".tif&render=rgb&disable_cache=true";
+    console.log(root, pid, tif);
+
+    mapStyle1 = {
+        version: 8,
+        sources: {
+            s2: {
+                "type": 'raster',
+                "tiles": [
+                    root + "/S2L2A_" + pid + "_TCI" + tif
+                ],
+                "tileSize": 256,
+            },
+            s2ndvi: {
+                "type": 'raster',
+                "tiles": [
+                    root + "/S2L2A_" + pid + "_NDVI" + tif
+                ],
+                "tileSize": 256,
+            },
+            s2irp: {
+                "type": 'raster',
+                "tiles": [
+                    root + "/S2L2A_" + pid + "_IRP" + tif
+                ],
+                "tileSize": 256,
+            }
+        },
+        "layers": [
+            {
+                "id": 'S2 RGB',
+                "source": 's2',
+                "type": 'raster',
+                "minzoom": 0,
+                "maxzoom": 19,
+                "paint": {
+                    'raster-resampling': 'nearest'
+                }
+            },
+            {
+                "id": 'S2 NDVI',
+                "source": 's2ndvi',
+                "type": 'raster',
+                "minzoom": 0,
+                "maxzoom": 19
+            },
+            {
+                "id": 'S2 B11,B8,B5',
+                "source": 's2irp',
+                "type": 'raster',
+                "minzoom": 0,
+                "maxzoom": 19
+            }
+        ]
+    }
+
+    mapStyle2 = {
+        "version": 8,
+        "sources": {
+            "s2dr3": {
+                "type": 'raster',
+                "tiles": [
+                    root + "/S2L3Ax10_" + pid + "_TCI" + tif
+                ],
+                "tileSize": 256
+            },
+            "s2dr3ndvi": {
+                "type": 'raster',
+                "tiles": [
+                    root + "/S2L3Ax10_" + pid + "_NDVI" + tif
+                ],
+                "tileSize": 256
+            },
+            "s2dr3irp": {
+                "type": 'raster',
+                "tiles": [
+                    root + "/S2L3Ax10_" + pid + "_IRP" + tif
+                ],
+                "tileSize": 256
+            }
+        },
+        "layers": [
+            {
+                "id": 'S2 RGB',
+                "source": 's2dr3',
+                "type": 'raster',
+                "minzoom": 0,
+                "maxzoom": 19,
+            },
+            {
+                "id": 'S2 NDVI',
+                "source": 's2dr3ndvi',
+                "type": 'raster',
+                "minzoom": 0,
+                "maxzoom": 19
+            },
+            {
+                "id": 'S2 B11,B8,B5',
+                "source": 's2dr3irp',
+                "type": 'raster',
+                "minzoom": 0,
+                "maxzoom": 19
+            }
+        ]
+    }
+
+    mapboxgl.accessToken = "pk.eyJ1IjoiZ2lyaXNocGFsbGFnYXR0aSIsImEiOiJja2h6NGVuc20wYndjMnlxaDExbzlsa3B2In0.e94ZfcoPleAA2nqjeX10ag";
+
+    var center = [Number(latlon[2]), Number(latlon[1])];
+    var z = Number(latlon[0]);
+
+    var beforeMap = new mapboxgl.Map({
+        container: 'before',
+        hash: true,
+        style: mapStyle1,
+        center: center,
+        maxZoom: 18,
+        zoom: z,
+    });
+
+    var afterMap = new mapboxgl.Map({
+        container: 'after',
+        style: mapStyle2,
+        center: center,
+        maxZoom: 18,
+        zoom: z
+    });
+
+    var container = '#comparison-container';
+
+    var map = new mapboxgl.Compare(beforeMap, afterMap, container, {});
+
+    beforeMap.on('load', () => {
+        if (!beforeMap.getLayer('S2 RGB')) {
+            return;
+        }
+
+        toggleableLayerIds = ['S2 RGB', 'S2 NDVI', 'S2 B11,B8,B5'];
+        attribution = "© ESA | © Gamma Earth";
+        document.getElementById("attribution").textContent = attribution;
+
+        for (const id of toggleableLayerIds) {
+            if (document.getElementById(id)) {
+                continue;
+            }
+
+            const link = document.createElement('a');
+            link.id = id;
+            link.href = '#';
+            link.textContent = id;
+            link.className = '';
+
+            link.onclick = function (e) {
+                const clickedLayer = this.textContent;
+                e.preventDefault();
+                e.stopPropagation();
+
+                for (const pid of toggleableLayerIds) {
+                    if (pid == clickedLayer) {
+                        beforeMap.setLayoutProperty(pid, 'visibility', 'visible');
+                        afterMap.setLayoutProperty(pid, 'visibility', 'visible');
+                        document.getElementById(pid).className = 'active';
+                    } else {
+                        beforeMap.setLayoutProperty(pid, 'visibility', 'none');
+                        afterMap.setLayoutProperty(pid, 'visibility', 'none');
+                        document.getElementById(pid).className = '';
+                    }
+                }
+            };
+
+            const layers = document.getElementById('menu');
+            layers.appendChild(link);
+
+            beforeMap.setLayoutProperty(id, 'visibility', 'none');
+            afterMap.setLayoutProperty(id, 'visibility', 'none');
+            document.getElementById(id).className = '';
+        }
+
+        beforeMap.setLayoutProperty('S2 RGB', 'visibility', 'visible');
+        afterMap.setLayoutProperty('S2 RGB', 'visibility', 'visible');
+        document.getElementById('S2 RGB').className = 'active';
+
+        id = 'S2DR3';
+        const link = document.createElement('a');
+        link.id = id;
+        link.href = '#';
+        link.textContent = id;
+        link.className = 'active';
+        const layerR = document.getElementById('menuR');
+        layerR.appendChild(link);
+    });
+
+    let ddates = Object.keys(dates);
+
+    const dateSlider = document.getElementById('dateSlider');
+    noUiSlider.create(dateSlider, {
+        start: [Object.keys(dates).find(key => dates[key] === ds[2])],
+        connect: [true, false],
+        range: { 'min': 0, 'max': ddates.length - 1 },
+        step: 1,
+        format: {
+            to: function (value) { return value; },
+            from: function (value) { return value; }
+        },
+        pips: {
+            mode: 'steps',
+            density: 100 / (ddates.length - 1),
+            format: {
+                to: function (value) {
+                    const isFirstOrLast = value == 0 || value == ddates.length - 1;
+                    return formatDate(dates[value], isFirstOrLast);
+                },
+                from: function (value) { return value; }
+            }
+        }
+    });
+
+    function updateUrlAndReload(date) {
+        const params = new URLSearchParams(window.location.search);
+        let ds = params.get("ds").split('-');
+        ds[2] = date;
+        params.set("ds", ds.join('-'));
+        console.log(date, params);
+
+        const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}${window.location.hash}`;
+        console.log(newUrl);
+
+        window.location.href = newUrl;
+    }
+
+    dateSlider.noUiSlider.on('change', function (values) {
+        const selectedYear = values[0];
+        console.log(values, dates);
+        console.log("Selected date:", selectedYear, dates[selectedYear]);
+        updateUrlAndReload(dates[selectedYear]);
+    });
+</script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PB0RTR8GJZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-PB0RTR8GJZ');
+</script>
+
+</body>
+</html>
