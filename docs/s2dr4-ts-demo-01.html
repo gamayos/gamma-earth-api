@@ -113,7 +113,10 @@
         font-family: 'Open Sans', sans-serif;
         text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; /* Add 1px black outline */
     }
-    .noUi-value-sub { font-size: 14px; font-family: 'Open Sans', sans-serif; color: #fff; } /* Hide the labels below the slider */
+    .noUi-value-sub { 
+        font-size: 14px; font-family: 'Open Sans', sans-serif; color: #fff; 
+        text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+    } /* Hide the labels below the slider */
 	
 </style>
 
@@ -388,10 +391,10 @@
     }
 
     dateSlider.noUiSlider.on('change', function (values) {
-        const selectedYear = values[0];
+        const selected = Math.round(values[0]);
         console.log(values, dates);
-        console.log("Selected date:", selectedYear, dates[selectedYear]);
-        updateUrlAndReload(dates[selectedYear]);
+        console.log("Selected date:", selected, dates[selected]);
+        updateUrlAndReload(dates[selected]);
     });
 </script>
 
