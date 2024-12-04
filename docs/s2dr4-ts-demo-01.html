@@ -99,9 +99,15 @@
 		background: #3074a4;
 	}
 	
-    .slider-container { position: absolute; bottom: 60px; width: 80%; left: 10%; }
-    .noUi-target, .noUi-horizontal { background: #333; }
-    .noUi-connect { background: #3887be; }
+    .slider-container { 
+        position: absolute; 
+        bottom: 60px; 
+        width: 80%; 
+        left: 10%; 
+        z-index: 2; /* Ensure the slider is on top */
+    }
+    .noUi-target, .noUi-horizontal { background: #3887be; }
+    .noUi-connect { background: #3887be; display: none; }
     .noUi-pips { top: 40px; color: #fff; } /* Move labels 10 pixels above the slider */
     .noUi-pips-horizontal { transform: translateY(-100%); } /* Adjust position */
     .noUi-marker { height: 10px; margin-top: 30px; } /* Make ticks go over the slider */
