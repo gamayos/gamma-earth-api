@@ -125,17 +125,8 @@
 	console.log(Number(latlon[0]),Number(latlon[2]), Number(latlon[1]));
 	
 	pid = ds[1] + "-" + ds[2] + "-" + ds[3];
-	//url = 'https%3A%2F%2Fstorage.googleapis.com%2Fsentinel-s2dr3%2F'+ds[0]+'%2F'+ds[1]+'%2FS2L2Ax10_'+pid+'_TCI.tif'
-    uri='s3://sentinel-s2dr3/' + ds[0] + '/' + ds[1] + '/' + pid;
     root = 'https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad'
-    root += '/{z}/{x}/{y}@2x?url='+uri;
-	//root = 'https://6esydeh2f3.execute-api.eu-central-1.amazonaws.com/cog/tiles/WebMercatorQuad/{z}/{x}/{y}@2x?url='+uri;
-    tif = '.tif&bidx=1&bidx=2&bidx=3'
-    console.log(root)
-	//"https://6esydeh2f3.execute-api.eu-central-1.amazonaws.com/cog/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Fstorage.googleapis.com%2Fsentinel-s2dr3%2FUS%2FT14TPT%2FS2L2Ax10_T14TPT-20210815-u0180bd8_TCI.tif&bidx=1&bidx=2&bidx=3"
-	//root = "https://rasters.digifarm.io/v1/rasters/file/{z}/{x}/{y}.png?token=c3b3ffa9-a0fd-4a01-abdd-168b675e8800&filename=sentinel-s2dr3/" + ds[0] + "/" + ds[1] + "/" + pid
-	//tif = ".tif&render=rgb&disable_cache=true"
-	//console.log(root, pid, tif)
+    root += '/{z}/{x}/{y}@2x?url=s3://sentinel-s2dr3/' + ds[0] + '/' + ds[1] + '/' + pid;
 	
 	mapStyle1 = {
 	    version: 8,
@@ -143,21 +134,21 @@
 	        s2: {
 	          	"type": 'raster',
 			  	"tiles": [
-					root + "/S2L2A_" + pid + "_TCI" + tif
+					root + "/S2L2A_" + pid + "_TCI.tif"
 				],
 	          	"tileSize": 256,
 	        },
 	        s2ndvi: {
 	          	"type": 'raster',
 			  	"tiles": [
-					root + "/S2L2A_" + pid + "_NDVI" + tif
+					root + "/S2L2A_" + pid + "_NDVI.tif"
 				],
 	          	"tileSize": 256,
 	        },
 	        s2irp: {
 	          	"type": 'raster',
 			  	"tiles": [
-					root + "/S2L2A_" + pid + "_IRP" + tif
+					root + "/S2L2A_" + pid + "_IRP.tif"
 				],
 	          	"tileSize": 256,
 	        }
@@ -196,21 +187,21 @@
 	        "s2dr3": {
 	          "type": 'raster',
 			  "tiles": [
-				root + "/S2L2Ax10_" + pid + "_TCI" + tif
+				root + "/S2L2Ax10_" + pid + "_TCI.tif"
 			  ],
 	          "tileSize": 256
 	        },
 	        "s2dr3ndvi": {
 	          "type": 'raster',
 			  "tiles": [
-				root + "/S2L2Ax10_" + pid + "_NDVI" + tif
+				root + "/S2L2Ax10_" + pid + "_NDVI.tif"
 			  ],
 	          "tileSize": 256
 	        },
 	        "s2dr3irp": {
 	          "type": 'raster',
 			  "tiles": [
-				root + "/S2L2Ax10_" + pid + "_IRP" + tif
+				root + "/S2L2Ax10_" + pid + "_IRP.tif"
 			  ],
 	          "tileSize": 256
 	        }
