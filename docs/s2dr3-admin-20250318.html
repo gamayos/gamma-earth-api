@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Management</title>
+    <style>
+        /* Basic styling for tabs */
+        .tabs { display: flex; cursor: pointer; background: #eee; padding: 10px; }
+        .tab { margin-right: 10px; padding: 5px 10px; border: 1px solid #ccc; }
+        .active { background: #fff; border-bottom: none; }
+        .tab-content { display: none; padding: 20px; border: 1px solid #ccc; }
+        .visible { display: block; }
+    </style>
+</head>
+<body>
+    <div class="tabs">
+        <div class="tab active" data-tab="users">User Management</div>
+        <div class="tab" data-tab="projects">Project Management</div>
+        <div class="tab" data-tab="services">Service Request Monitoring</div>
+    </div>
+
+    <div id="users" class="tab-content visible">
+        <!-- User management content -->
+        <h2>User Management</h2>
+        <button onclick="loadUsers()">Load Users</button>
+        <div id="usersContent"></div>
+    </div>
+
+    <div id="projects" class="tab-content">
+        <!-- Project management content -->
+        <h2>Project Management</h2>
+        <button onclick="loadProjects()">Load Projects</button>
+        <div id="projectsContent"></div>
+    </div>
+
+    <div id="services" class="tab-content">
+        <!-- Service request monitoring content -->
+        <h2>Service Request Monitoring</h2>
+        <button onclick="loadServiceRequests()">Load Service Requests</button>
+        <div id="servicesContent"></div>
+    </div>
+
+    <script>
+        // Tab switching
+        const tabs = document.querySelectorAll('.tab');
+        const contents = document.querySelectorAll('.tab-content');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                contents.forEach(c => c.classList.remove('visible'));
+                tab.classList.add('active');
+                document.getElementById(tab.getAttribute('data-tab')).classList.add('visible');
+            });
+        });
+
+        // RISC API calls placeholders
+        function loadUsers() {
+            // Call RISC API for user management
+            fetch('https://ge-list-users-124295537915.us-central1.run.app')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('usersContent').innerHTML = JSON.stringify(data);
+                })
+                .catch(error => console.error('Error loading users:', error));
+        }
+
+        function loadProjects() {
+            // Call RISC API for project management per user.
+            fetch('https://ge-list-users-124295537915.us-central1.run.app')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('projectsContent').innerHTML = JSON.stringify(data);
+                })
+                .catch(error => console.error('Error loading projects:', error));
+        }
+
+        function loadServiceRequests() {
+            // Call RISC API for service request monitoring per user per project.
+            fetch('https://ge-list-users-124295537915.us-central1.run.app')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('servicesContent').innerHTML = JSON.stringify(data);
+                })
+                .catch(error => console.error('Error loading service requests:', error));
+        }
+    </script>
+</body>
+</html>
