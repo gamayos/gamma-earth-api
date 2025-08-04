@@ -1,0 +1,369 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>S2DR4 Demo</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body { margin:0; padding:0; background: #111!important; }
+    </style>
+</head>
+<body>
+
+<style>
+    body {
+        overflow: hidden;
+    }
+
+    body * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+    }
+	
+	.mapbox-attribution-container {
+		bottom: 0;
+		right: 0;
+		position: absolute;
+		display: block;
+		margin: 0;
+		padding: 0 5px;
+		font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+		font-size: 12px;
+		line-height: 20px;
+		font-weight: normal;
+		-webkit-tap-highlight-color: rgba(0,0,0,0);
+		background-color: rgba(255, 255, 255, 0.5);
+		color: rgba(0, 0, 0, 0.75);
+	}
+	
+	.menu {
+		background: #fff;
+		position: absolute;
+		z-index: 1;
+		top: 10px;
+		border-radius: 3px;
+		width: 120px;
+		border: 1px solid rgba(0, 0, 0, 0.4);
+		font-family: 'Open Sans', sans-serif;
+	}
+	
+	#menu {
+		left: 10px;
+	}
+	
+	#menuR {
+		right: 10px;
+	}
+ 
+	.menu a {
+		font-size: 13px;
+		color: #404040;
+		display: block;
+		margin: 0;
+		padding: 0;
+		padding: 10px;
+		text-decoration: none;
+		border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+		text-align: center;
+	}
+ 
+	.menu a:last-child {
+		border: none;
+	}
+ 
+	.menu a:hover {
+		background-color: #f8f8f8;
+		color: #404040;
+	}
+ 
+	.menu a.active {
+		background-color: #3887be;
+		color: #ffffff;
+	}
+ 
+	.menu a.active:hover {
+		background: #3074a4;
+	}
+	
+</style>
+
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css" type="text/css"/>
+
+<nav id="menu" class="menu"></nav>
+<nav id="menuR" class="menu"></nav>
+<div id="comparison-container">
+    <div id="before" class="map"></div>
+    <div id="after" class="map"></div>
+</div>
+<div id="attribution" class="mapbox-attribution-container"></div>
+
+<!--<script src='s2dr2datasets11.js'></script>-->
+<script>
+	
+	const params = new URLSearchParams(window.location.search);
+	
+	//dataset = datasets[params.get("ds")];
+	ds = params.get("ds").split('-');
+	planet = params.get("planet");
+	satellogic = params.get("satellogic");
+	
+	latlon = window.location.hash.split('#')[1].split('/')
+	console.log(Number(latlon[0]),Number(latlon[2]), Number(latlon[1]))
+	
+	pid = ds[1] + "-" + ds[2] + "-" + ds[3]
+	//https://sentinel-s2dr4.s3.eu-central-1.amazonaws.com/RU/T39VVF/u40344a1/S2L2A_T39VVF-20240526-u40344a1_TCI.tif
+	//url = 'https%3A%2F%2Fstorage.googleapis.com%2Fsentinel-s2dr3%2F'+ds[0]+'%2F'+ds[1]+'%2FS2L2Ax10_'+pid+'_TCI.tif'
+	//root = 'https://6esydeh2f3.execute-api.eu-central-1.amazonaws.com/cog/tiles/WebMercatorQuad'
+	//params = '&bidx=1&bidx=2&bidx=3'
+	//tiles = root+'/{z}/{x}/{y}@1x?url='+url+params
+	//"https://6esydeh2f3.execute-api.eu-central-1.amazonaws.com/cog/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Fstorage.googleapis.com%2Fsentinel-s2dr3%2FUS%2FT14TPT%2FS2L2Ax10_T14TPT-20210815-u0180bd8_TCI.tif&bidx=1&bidx=2&bidx=3"
+	root = "https://rasters.digifarm.io/v1/rasters/file/{z}/{x}/{y}.png?token=c3b3ffa9-a0fd-4a01-abdd-168b675e8800&filename=sentinel-s2dr4/" + ds[0] + "/" + ds[1] + "/" + ds[2]
+	tif = ".tif&render=rgb&disable_cache=true"
+	console.log(root, pid, tif)
+	
+	mapStyle1 = {
+	    version: 8,
+	    sources: {
+	        s2: {
+	          	"type": 'raster',
+			  	"tiles": [
+					root + "/S2L2A_" + pid + "_TCI" + tif
+				],
+	          	"tileSize": 256,
+	        },
+	        s2ndvi: {
+	          	"type": 'raster',
+			  	"tiles": [
+					root + "/S2L2A_" + pid + "_NDVI" + tif
+				],
+	          	"tileSize": 256,
+	        },
+	        s2irp: {
+	          	"type": 'raster',
+			  	"tiles": [
+					root + "/S2L2A_" + pid + "_IRP" + tif
+				],
+	          	"tileSize": 256,
+	        }
+	    },
+	    "layers": [
+	        {
+	            "id": 'S2 RGB',
+	            "source": 's2',
+	            "type": 'raster',
+	            "minzoom": 0,
+	            "maxzoom": 19,
+				"paint": {
+				          'raster-resampling': 'nearest'
+				        }
+	        },
+			{
+	            "id": 'S2 NDVI',
+	            "source": 's2ndvi',
+	            "type": 'raster',
+	            "minzoom": 0,
+	            "maxzoom": 19
+	        },
+	        {
+	            "id": 'S2 B11,B8,B5',
+	            "source": 's2irp',
+	            "type": 'raster',
+	            "minzoom": 0,
+	            "maxzoom": 19
+	        }
+	    ]
+	}
+		
+	mapStyle2 = {
+	    "version": 8,
+	    "sources": {
+	        "s2dr3": {
+	          "type": 'raster',
+			  "tiles": [
+				root + "/S2L3Ax10_" + pid + "_TCI" + tif
+			  ],
+	          "tileSize": 256
+	        },
+	        "s2dr3ndvi": {
+	          "type": 'raster',
+			  "tiles": [
+				root + "/S2L3Ax10_" + pid + "_NDVI" + tif
+			  ],
+	          "tileSize": 256
+	        },
+	        "s2dr3irp": {
+	          "type": 'raster',
+			  "tiles": [
+				root + "/S2L3Ax10_" + pid + "_IRP" + tif
+			  ],
+	          "tileSize": 256
+	        }
+	    },
+	    "layers": [
+	        {
+	            "id": 'S2 RGB',
+	            "source": 's2dr3',
+	            "type": 'raster',
+	            "minzoom": 0,
+	            "maxzoom": 19,
+	        },
+	        {
+	            "id": 'S2 NDVI',
+	            "source": 's2dr3ndvi',
+	            "type": 'raster',
+	            "minzoom": 0,
+	            "maxzoom": 19
+	        },
+	        {
+	            "id": 'S2 B11,B8,B5',
+	            "source": 's2dr3irp',
+	            "type": 'raster',
+	            "minzoom": 0,
+	            "maxzoom": 19
+	        }
+	    ]
+	}
+
+	//mapboxgl.accessToken = 'pk.eyJ1IjoidmFyaWsiLCJhIjoiTC1IZFkzNCJ9.Bh1S9ujLfb9hW6GlunR2eA';
+  	mapboxgl.accessToken =
+    "pk.eyJ1IjoiZ2lyaXNocGFsbGFnYXR0aSIsImEiOiJja2h6NGVuc20wYndjMnlxaDExbzlsa3B2In0.e94ZfcoPleAA2nqjeX10ag";
+
+	var center = [Number(latlon[2]), Number(latlon[1])] //dataset['center']
+	var z = Number(latlon[0])
+	
+	var beforeMap = new mapboxgl.Map({
+	    container: 'before',
+	    hash: true,
+	    style: mapStyle1,
+	    center: center,
+	    maxZoom: 18,
+	    zoom: z,
+		//attributionControl: false
+	});
+	
+	//beforeMap.addControl(new mapboxgl.AttributionControl(), 'bottom-left');
+	
+	var afterMap = new mapboxgl.Map({
+	    container: 'after',
+		//hash: true,
+	    style: mapStyle2,
+	    center: center,
+	    maxZoom: 18,
+	    zoom: z
+	});
+
+	// A selector or reference to HTML element
+	var container = '#comparison-container';
+
+	var map = new mapboxgl.Compare(beforeMap, afterMap, container, {
+	    // Set this to enable comparing two maps by mouse movement:
+	    // mousemove: true
+	});
+	
+	// After the last frame rendered before the map enters an "idle" state.
+	
+	beforeMap.on('load', () => {
+		
+		// If these two layers were not added to the map, abort
+		if (!beforeMap.getLayer('S2 RGB')) { //} || !beforeMap.getLayer('Mapbox') || !beforeMap.getLayer('ESRI')) {
+			return;
+		}
+		
+		toggleableLayerIds = ['S2 RGB','S2 NDVI','S2 B11,B8,B5']
+		attribution = "© ESA "
+		attribution += "| © Gamma Earth"
+		
+		document.getElementById("attribution").textContent = attribution;
+ 
+		// Set up the corresponding toggle button for each layer.
+		for (const id of toggleableLayerIds) {
+			// Skip layers that already have a button set up.
+			if (document.getElementById(id)) {
+				continue;
+			}
+ 
+			// Create a link.
+			const link = document.createElement('a');
+			link.id = id;
+			link.href = '#';
+			link.textContent = id;
+			link.className = '';
+ 
+				// Show or hide layer when the toggle is clicked.
+			link.onclick = function (e) {
+				const clickedLayer = this.textContent;
+				//if (clickedLayer != 'ESRI') {
+					
+
+				e.preventDefault();
+				e.stopPropagation();
+				
+				for (const pid of toggleableLayerIds) {
+					
+					if (pid == clickedLayer) {
+						beforeMap.setLayoutProperty(pid, 'visibility', 'visible');
+						afterMap.setLayoutProperty(pid, 'visibility', 'visible');
+						document.getElementById(pid).className = 'active';
+					} else {
+						beforeMap.setLayoutProperty(pid, 'visibility', 'none');
+						afterMap.setLayoutProperty(pid, 'visibility', 'none');
+						document.getElementById(pid).className = '';
+					}
+					
+				}
+			};
+
+			const layers = document.getElementById('menu');
+			layers.appendChild(link);
+			
+			beforeMap.setLayoutProperty(id, 'visibility', 'none');
+			afterMap.setLayoutProperty(id, 'visibility', 'none');
+			document.getElementById(id).className = '';
+		
+		}
+	
+		
+		beforeMap.setLayoutProperty('S2 RGB', 'visibility', 'visible');
+		afterMap.setLayoutProperty('S2 RGB', 'visibility', 'visible');
+		document.getElementById('S2 RGB').className = 'active';
+		
+		// Create a link.
+		id = 'S2DR4'
+		const link = document.createElement('a');
+		link.id = id;
+		link.href = '#';
+		link.textContent = id;
+		link.className = 'active';
+		const layerR = document.getElementById('menuR');
+		layerR.appendChild(link);
+			//}
+	});
+	
+</script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PB0RTR8GJZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-PB0RTR8GJZ');
+</script>
+
+</body>
+</html>
