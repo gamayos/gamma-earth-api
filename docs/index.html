@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gamma Earth · Technical Documentation</title>
+  <meta name="description" content="Technical documentation for Gamma Earth projects." />
+
+  <!-- Roboto font -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #23213a;         /* dull blue background */
+      --text: #ffffff;       /* primary text */
+      --muted: #b7b5c6;      /* secondary text */
+      --card: #2e2b49;       /* surfaces (code blocks, callouts) */
+      --border: #3a375b;     /* subtle borders */
+      --link: #a5c7ff;       /* link color */
+      --focus: #e8f0ff;      /* focus outline */
+      --maxw: 1000px;        /* content width */
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Skip link for accessibility */
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+    .skip-link:focus {
+      left: 16px; top: 16px; width: auto; height: auto; overflow: visible;
+      background: var(--focus);
+      color: #111; padding: 10px 12px; border-radius: 10px; text-decoration: none;
+      box-shadow: 0 6px 18px rgba(0,0,0,.35);
+    }
+
+    /* Header */
+    header {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(35, 33, 58, 0.85);
+      backdrop-filter: saturate(180%) blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .brand {
+      display: inline-flex; align-items: center; gap: 10px;
+      text-decoration: none; color: var(--text);
+    }
+    .brand img { height: 28px; width: auto; display: block; }
+    .brand span { font-weight: 700; letter-spacing: .2px; }
+
+    /* Main */
+    main { max-width: var(--maxw); margin: 32px auto 80px; padding: 0 20px; }
+
+    /* Typography & prose */
+    .prose h1, .prose h2, .prose h3 { line-height: 1.2; margin: 1.2em 0 .5em; }
+    .prose h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 700; }
+    .prose h2 { font-size: clamp(22px, 3vw, 28px); font-weight: 700; }
+    .prose h3 { font-size: clamp(18px, 2.2vw, 22px); font-weight: 500; }
+
+    .prose p, .prose ul, .prose ol { margin: .8em 0; }
+    .prose ul, .prose ol { padding-left: 1.2em; }
+
+    .prose a {
+      color: var(--link); text-decoration: none;
+      border-bottom: 1px dashed rgba(165,199,255,.45);
+    }
+    .prose a:hover { border-bottom-color: currentColor; }
+
+    .prose code {
+      background: var(--card); border: 1px solid var(--border);
+      padding: .15em .35em; border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: .95em;
+    }
+    .prose pre {
+      background: var(--card); border: 1px solid var(--border);
+      padding: 16px; border-radius: 14px; overflow: auto;
+    }
+    .prose pre code { background: none; border: 0; padding: 0; font-size: 0.95em; }
+
+    .prose blockquote {
+      margin: 1em 0; padding-left: 14px; color: var(--muted);
+      border-left: 3px solid var(--border);
+    }
+
+    .callout {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 16px 18px; margin: 20px 0;
+    }
+
+    hr { border: 0; height: 1px; background: var(--border); margin: 28px 0; }
+
+    footer {
+      max-width: var(--maxw); margin: 40px auto; padding: 0 20px;
+      color: var(--muted); font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <header>
+    <div class="header-inner">
+      <!-- Replace the src with your actual logo path (e.g., ./assets/gamma-earth-logo.svg) -->
+      <a class="brand" href="/">
+        <img src="./assets/gamma-earth-logo.svg" alt="Gamma Earth logo" />
+        <span>Gamma&nbsp;Earth</span>
+      </a>
+    </div>
+  </header>
+
+  <main id="content">
+    <article class="prose">
+      <h1>Technical Documentation</h1>
+      <p>
+        Welcome to the Gamma Earth documentation site. Use this page as a simple
+        landing for your docs hosted on GitHub Pages or any static host. Keep it minimal and focused.
+      </p>
+
+      <div class="callout">
+        <strong>Tip:</strong> Organize longer docs as separate markdown/HTML pages and link them below.
+      </div>
+
+      <h2>Getting Started</h2>
+      <ol>
+        <li>Clone the repository containing this page.</li>
+        <li>Place your logo at <code>./assets/gamma-earth-logo.svg</code> (or update the <code>img</code> path above).</li>
+        <li>Edit this file to add your technical content and links.</li>
+      </ol>
+
+      <h2>Example Code Block</h2>
+      <pre><code># Example installation
+pip install gammaearth
+
+# Example usage
+python -m gammaearth --help</code></pre>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="#">API Reference</a></li>
+        <li><a href="#">CLI Guide</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+
+      <hr />
+      <p>
+        Need something fancier later? Add a static site generator (Docusaurus, MkDocs, or Astro) and keep this page as a lightweight index.
+      </p>
+    </article>
+  </main>
+
+  <footer>
+    © <span id="year"></span> Gamma Earth. All rights reserved.
+  </footer>
+
+  <script>
+    // current year in footer
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
