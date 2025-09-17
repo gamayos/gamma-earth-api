@@ -41,6 +41,29 @@ header {
 .brand img { height: 28px; }
 .brand span { font-weight: 700; }
 
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.skip-link:focus {
+  left: 16px;
+  top: 16px;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  background: var(--focus);
+  color: #111;
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(0,0,0,.35);
+}
+
 main { max-width: var(--maxw); margin: 32px auto 80px; padding: 0 20px; }
 
 .prose h1, .prose h2, .prose h3 { line-height: 1.2; margin: 1.2em 0 .5em; }
