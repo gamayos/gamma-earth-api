@@ -39,7 +39,15 @@ header {
   text-decoration: none; color: var(--text);
 }
 .brand img { height: 64px; }
-.brand span { font-weight: 700; }
+.brand span {   
+    letter-spacing: 0.6px;
+    text-decoration: none;
+    text-transform: none;
+    color: rgba(255, 255, 255, 1);
+    font-size: 27px;
+    font-style: normal;
+    font-weight: 300;
+}
 
 .skip-link {
   position: absolute;
