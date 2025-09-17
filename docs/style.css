@@ -38,7 +38,7 @@ header {
   display: inline-flex; align-items: center; gap: 10px;
   text-decoration: none; color: var(--text);
 }
-.brand img { height: 28px; }
+.brand img { height: 64px; }
 .brand span { font-weight: 700; }
 
 .skip-link {
