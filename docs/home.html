@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gamma Earth · Knowledge Base</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <header>
+    <div class="header-inner">
+      <a class="brand" href="#">
+        <img src="ge_logo.png" alt="Gamma Earth logo" />
+        <span>Gamma&nbsp;Earth&nbsp;·&nbsp;Knowledge Base</span>
+      </a>
+    </div>
+  </header>
+
+  <main id="content">
+    <article class="prose">
+      <h1>Knowledge Base</h1>
+      <p>
+        Welcome to the Gamma Earth's S2DR3 Knowledge Base. 
+      </p>
+
+      <!--
+      <div class="callout">
+        <strong>Tip:</strong> Organize longer docs as separate markdown/HTML pages and link them below.
+      </div>
+      -->
+      
+      <h2>Getting Started</h2>
+      <ol>
+        <li><a href="S2DR3-API-README-20250430.html" target="_blank">S2DR3 API Manual (ver. 20250430)</a></li>
+        <li><a href="https://colab.research.google.com/drive/1Jz6P5cRnI6u9flM_Q6u9aKaTNyLqBKUI" target="_blank">Python integration examples on Google Colab</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ol>
+
+      <h2>Latest Releases</h2>
+      <ol>
+        <li>S2DR3 RISC API Version 0.2 - 20250917</li>
+        <li>S2DR3 Python SDK - s2dr3-20250905</li>
+      </ol>
+
+      <!-- <h2>Example Code Block</h2>
+      <pre><code># Example installation
+pip install gammaearth
+
+# Example usage
+python -m gammaearth --help</code></pre> -->
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://medium.com/@ya_71389/c71a601a2253" target="_blank">Yosef Akhtman, S2DR3: Effective 10-Band 10x Single Image Super-Resolution for Sentinel-2. Gamma Earth, Medium, 2023.</a></li>
+        <li><a href="https://colab.research.google.com/drive/18phbwA1iYG5VDGN2WjK7WrWYi-FdCHJ5" target="_blank">S2DR3 Trial on Google Colab</a></li>
+        <li><a href="https://browser.dataspace.copernicus.eu/" target="_blank">Copernicus Data Space Ecosystem Browser</a></li>
+      </ul>
+
+      <hr />
+      <p>
+        Stay tuned for further updates!
+      </p>
+    </article>
+  </main>
+
+  <footer>
+    © <span id="year"></span> Gamma Earth. All rights reserved.&nbsp;<a href="https://gamma.earth" target="_blank">https://gamma.earth</a>
+  </footer>
+
+  <script>
+    // current year in footer
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
