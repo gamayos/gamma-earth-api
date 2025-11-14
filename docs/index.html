@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gamma Earth · Documentation</title>
-  <meta name="description" content="Technical documentation and legal information for Gamma Earth products." />
+  <meta name="description" content="Technical and legal documentation for Gamma Earth products." />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
@@ -14,30 +14,23 @@
 
   <header>
     <div class="header-inner">
-      <a class="brand" href="index.html">
-        <img src="ge_logo.png" alt="Gamma Earth logo" />
+      <a class="brand" href="/index.html">
+        <img src="/ge_logo.png" alt="Gamma Earth logo" />
         <span>Gamma&nbsp;Earth&nbsp;·&nbsp;Documentation</span>
       </a>
-      <nav aria-label="Main">
-        <ul class="menu">
-          <li><a href="index.html">Documentation</a></li>
-          <li><a href="legal/index.html">Legal</a></li>
-        </ul>
-      </nav>
     </div>
   </header>
 
   <main id="content">
     <article class="prose">
-      <nav class="mini-nav">
-        <strong>Docs home</strong> ·
-        <a href="https://gamma.earth" target="_blank" rel="noopener">Gamma Earth website</a>
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <span>Docs</span>
       </nav>
 
       <h1>Gamma Earth Documentation</h1>
       <p>
-        Welcome to the Gamma Earth Documentation site. This repository hosts technical documentation
-        for Gamma Earth products, including the S2DR3 API &amp; SDK manuals, as well as related legal documents.
+        This site hosts technical documentation for Gamma Earth products (APIs, SDKs) 
+        as well as legal documents governing their use.
       </p>
 
       <h2>Knowledge Base</h2>
@@ -73,7 +66,10 @@
   </main>
 
   <footer>
-    © <span id="year"></span> Gamma Earth. All rights reserved.
+    <p>© <span id="year"></span> Gamma Earth. All rights reserved.</p>
+    <p class="footer-meta">
+      Main site: <a href="https://gamma.earth" target="_blank" rel="noopener">gamma.earth</a>
+    </p>
   </footer>
 
   <script>
