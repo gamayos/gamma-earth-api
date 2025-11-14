@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gamma Earth · Knowledge Base</title>
+  <title>Gamma Earth · Documentation</title>
+  <meta name="description" content="Technical documentation and legal information for Gamma Earth products." />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -13,66 +14,45 @@
 
   <header>
     <div class="header-inner">
-      <a class="brand" href="#">
+      <a class="brand" href="index.html">
         <img src="ge_logo.png" alt="Gamma Earth logo" />
-        <span>Gamma&nbsp;Earth&nbsp;·&nbsp;Knowledge Base</span>
+        <span>Gamma&nbsp;Earth&nbsp;·&nbsp;Documentation</span>
       </a>
     </div>
   </header>
 
   <main id="content">
     <article class="prose">
-      <h1>Knowledge Base</h1>
+      <nav class="mini-nav">
+        <strong>Docs home</strong> ·
+        <a href="https://gamma.earth" target="_blank" rel="noopener">Gamma Earth website</a>
+      </nav>
+
+      <h1>Gamma Earth Documentation</h1>
       <p>
-        Welcome to the Gamma Earth's S2DR3 Knowledge Base. 
+        Welcome to the Gamma Earth Documentation site. This site hosts technical documentation,
+        SDK and API manuals, as well as legal documents related to Gamma Earth products.
       </p>
 
-      <!--
-      <div class="callout">
-        <strong>Tip:</strong> Organize longer docs as separate markdown/HTML pages and link them below.
-      </div>
-      -->
-      
-      <h2>Risc API - Latest release: Version 0.2 - 20250917</h2>
-      <ol>
-        <li><a href="S2DR3-API-README-20250430.html">S2DR3 API Manual (ver. 20250430)</a></li>
-        <li><a href="https://colab.research.google.com/drive/1Jz6P5cRnI6u9flM_Q6u9aKaTNyLqBKUI" target="_blank">Python integration examples on Google Colab</a></li>
-        <li>Change Log</li>
-      </ol>
-
-      <h2>Python SDK - Latest release: s2dr3-20250905</h2>
-      <ol>
-        <li><a href="S2DR3-SDK-README-20250522.html">S2DR3 SDK Manual (ver. 20250522)</a></li>
-        <li>Change Log</li>
-      </ol>
-
-      <!-- <h2>Example Code Block</h2>
-      <pre><code># Example installation
-pip install gammaearth
-
-# Example usage
-python -m gammaearth --help</code></pre> -->
-
-      <h2>Links</h2>
+      <h2>Knowledge Base</h2>
       <ul>
-        <li><a href="https://medium.com/@ya_71389/c71a601a2253" target="_blank">Yosef Akhtman, S2DR3: Effective 10-Band 10x Single Image Super-Resolution for Sentinel-2. Gamma Earth, Medium, 2023.</a></li>
-        <li><a href="https://colab.research.google.com/drive/18phbwA1iYG5VDGN2WjK7WrWYi-FdCHJ5" target="_blank">S2DR3 Trial on Google Colab</a></li>
-        <li><a href="https://browser.dataspace.copernicus.eu/" target="_blank">Copernicus Data Space Ecosystem Browser</a></li>
+        <li><a href="S2DR3-API-README-20250430.html">S2DR3 API Manual</a></li>
+        <li><a href="S2DR3-SDK-README-20250522.html">S2DR3 SDK Manual</a></li>
       </ul>
 
-      <hr />
-      <p>
-        Stay tuned for further updates!
-      </p>
+      <h2>Legal</h2>
+      <ul>
+        <li><a href="legal/license-agreement.html">License Agreement</a></li>
+        <li><a href="legal/fee-policy.html">Fee Policy</a></li>
+      </ul>
     </article>
   </main>
 
   <footer>
-    © <span id="year"></span> Gamma Earth. All rights reserved.&nbsp;<a href="https://gamma.earth" target="_blank">https://gamma.earth</a>
+    © <span id="year"></span> Gamma Earth. All rights reserved.
   </footer>
 
   <script>
-    // current year in footer
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
