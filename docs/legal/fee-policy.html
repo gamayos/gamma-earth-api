@@ -3,44 +3,51 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gamma Earth · Legal · Fee Policy</title>
+  <title>Gamma Earth · Documentation · Fee Policy</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
   <a class="skip-link" href="#content">Skip to content</a>
+
   <header>
     <div class="header-inner">
       <a class="brand" href="../index.html">
         <img src="../ge_logo.png" alt="Gamma Earth logo" />
-        <span>Gamma&nbsp;Earth&nbsp;·&nbsp;Legal</span>
+        <span>Gamma&nbsp;Earth&nbsp;·&nbsp;Documentation</span>
       </a>
       <a class="brand" href="index.html"><span>&nbsp;>>&nbsp;Fee Policy</span></a>
     </div>
   </header>
+
   <main id="content">
     <article class="prose">
+      <nav class="mini-nav">
+        <a href="../index.html">Docs home</a> ·
+        <a href="https://gamma.earth" target="_blank" rel="noopener">Gamma Earth website</a>
+      </nav>
+
       <h1>Fee Policy</h1>
       <p><strong>Annex 1 - Fee Policy of Gamma Earth</strong></p>
       <p>This fee policy (the “Fee Policy”) supplements the License Agreement with regards to the financial terms and conditions applicable to the License Fees for the use of the Software and the Services. Capitalized terms used herein shall have the meaning ascribed to them in this Fee Policy or, where not defined herein, the meaning set forth in the License Agreement.</p>
 
       <h2>License Fees</h2>
       <p>The License Fees for access and use of the Software and/or the Services are calculated on data-consumption on a one-time basis, as set out in the following schedule:</p>
-      <p>
-        <table>
-          <thead>
+
+      <table>
+        <thead>
           <tr><th>Tier</th><th>Min Order (km²)</th><th>Max Order (km²)</th><th>Unit Price (EUR/km²)</th></tr>
-          </thead>
-          <tbody>
+        </thead>
+        <tbody>
           <tr><td>1</td><td>1</td><td>1,000</td><td>3.20</td></tr>
           <tr><td>2</td><td>1,001</td><td>10,000</td><td>1.60</td></tr>
           <tr><td>3</td><td>10,001</td><td>100,000</td><td>0.80</td></tr>
           <tr><td>4</td><td>100,001</td><td>400,000</td><td>0.40</td></tr>
           <tr><td>5</td><td>400,001</td><td>1,000,000</td><td>0.20</td></tr>
           <tr><td>6</td><td>1,000,001</td><td>-</td><td>0.10</td></tr>
-          </tbody>
-        </table>
-      </p>
+        </tbody>
+      </table>
+
       <p>Gamma Earth may introduce, at any time and at its sole discretion, additional types of data subscription packages in the future, such as monthly and or annual subscription plans. Such offering, if and when made available, will be published in an updated version of this Fee Policy and on the Store.</p>
       <p>Licensee must select a Data Allowance within the Min Order - Max Order range. Payments must occur once, monthly or annually prior to accessing the Software and/or the Services, unless specified otherwise in the Store and/or the Order Documents. Upon receipt of payment, the purchased Data Allowance will be activated, and the corresponding data volume will be made available for use.</p>
       <p>Gamma Earth makes no representation or warranty that the License Fees are the lowest or best price at any given time during the term of the subscription.</p>
@@ -100,7 +107,19 @@
       <p>Any dispute arising out of or relating to this Fee Policy shall be subject to the exclusive jurisdiction of the courts of the city of Lausanne, Switzerland.</p>
 
       <p>Any question about this Fee Policy shall be addressed to <a href="mailto:info@gamma.earth">info@gamma.earth</a>.</p>
-      <p>Gamma Earth Sàrl - Switzerland - <a href="http://www.gamma.earth">www.gamma.earth</a> - info@gamma.earth</p>
+      <p>Gamma Earth Sàrl - Switzerland - <a href="https://gamma.earth" target="_blank" rel="noopener">www.gamma.earth</a> - info@gamma.earth</p>
 
       <hr>
       <p><a href="index.html">← Back to Legal Overview</a></p>
+    </article>
+  </main>
+
+  <footer>
+    © <span id="year"></span> Gamma Earth. All rights reserved.
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
