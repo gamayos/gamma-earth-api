@@ -1,0 +1,66 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gamma Earth Documentation</title>
+  <meta name="description" content="Documentation Website of Gamma Earth." />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <header>
+    <div class="header-inner">
+      <a class="brand" href="/index.html">
+        <img src="../ge_logo.png" alt="Gamma Earth logo" />
+        <span>Gamma&nbsp;Earth&nbsp;Documentation</span>
+      </a>
+    </div>
+  </header>
+
+  <main id="content">
+    <article class="prose"> 
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="../index.html">Docs Home</a>
+      </nav>
+
+      <h2>Knowledge Base</h2>
+      <p>Technical documentation for Gamma Earth products (APIs, SDKs):</p>
+      <h3>Risc API - Latest release: Version 0.2 - 20250917</h3>
+      <ol>
+        <li><a href="knowledge-base/S2DR3-API-README-20250430.html">S2DR3 API Manual (ver. 20250430)</a></li>
+        <li><a href="https://colab.research.google.com/drive/1Jz6P5cRnI6u9flM_Q6u9aKaTNyLqBKUI" target="_blank">Python integration examples on Google Colab</a></li>
+        <li><i>Change Log (coming soon)</i></li>
+      </ol>
+
+      <h3>Python SDK - Latest release: s2dr3-20250905</h3>
+      <ol>
+        <li><a href="knowledge-base/S2DR3-SDK-README-20250522.html">S2DR3 SDK Manual (ver. 20250522)</a></li>
+        <li><i>Change Log (coming soon)</i></li>
+      </ol>
+
+      <h3>Google Colab - Open Access Trial</h3>
+      <ul>
+        <li><a href="https://colab.research.google.com/drive/18phbwA1iYG5VDGN2WjK7WrWYi-FdCHJ5" target="_blank">S2DR3 Trial on Google Colab</a></li>
+      </ul>
+
+      
+    </article>
+  </main>
+
+  <footer>
+    <p>© <span id="year"></span> Gamma Earth. All rights reserved.</p>
+    <p class="footer-meta">
+      Main site: <a href="https://gamma.earth" target="_blank" rel="noopener">gamma.earth</a>
+    </p>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
