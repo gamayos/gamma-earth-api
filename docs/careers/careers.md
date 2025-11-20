@@ -71,6 +71,6 @@ You will play a key role in developing our SaaS platform, integrating AI workflo
 ### How to Apply
 
 Send your **CV**, **links to projects or GitHub**, and a brief note about why you’re interested to:  
-**contact@gamma.earth**
+**info@gamma.earth**
 
 Please include “Full-Stack Software Engineer” in the subject line.
