@@ -1,0 +1,295 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Gamma Earth S2DR3 Two-Date Compare</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js"></script>
+  <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css" rel="stylesheet"/>
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css"/>
+
+  <style>
+    body { margin:0; padding:0; background:#111; overflow:hidden; }
+    .map { position:absolute; top:0; bottom:0; width:100%; }
+
+    .menu { background:#fff; position:absolute; z-index:5; top:10px; border-radius:3px; width:140px;
+            border:1px solid rgba(0,0,0,.4); font-family:sans-serif; }
+    #menuL { left:10px; } #menuR { right:10px; }
+    .menu a { font-size:13px; color:#404040; display:block; padding:10px; text-decoration:none;
+              border-bottom:1px solid rgba(0,0,0,.25); text-align:center; }
+    .menu a:last-child { border:none; }
+    .menu a.active { background:#3887be; color:#fff; }
+
+    .missing-note{
+      position:absolute; top:10px; padding:6px 10px;
+      background:#e53935; color:#fff; border-radius:6px;
+      font:12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      z-index:9999; pointer-events:none;
+    }
+    #noteLeft{ left:10px; }
+    #noteRight{ right:10px; }
+
+    .date-badge {
+      position:absolute; top:10px; left:50%; transform:translateX(-50%);
+      background:rgba(0,0,0,.65); color:#fff; padding:6px 10px; border-radius:4px;
+      font:12px/1.2 sans-serif; letter-spacing:.3px; z-index:6; pointer-events:none;
+      box-shadow:0 0 0 1px rgba(255,255,255,.15) inset;
+    }
+    @media (min-width: 640px) { .date-badge { top:52px; } }
+
+    #debug { position:absolute; left:50%; transform:translateX(-50%); bottom:8px; z-index:6;
+             background:rgba(17,17,17,.7); color:#eee; font:11px/1.4 monospace; padding:6px 8px; border-radius:4px; display:none; }
+  </style>
+</head>
+<body>
+  <nav id="menuL" class="menu"></nav>
+  <nav id="menuR" class="menu"></nav>
+  <div id="noteLeft"  class="missing-note" style="display:none">No preview for <span id="dateLeft"></span></div>
+  <div id="noteRight" class="missing-note" style="display:none">No preview for <span id="dateRight"></span></div>
+
+  <div id="comparison-container">
+    <div id="before" class="map"></div>
+    <div id="after" class="map"></div>
+  </div>
+
+  <div id="debug"></div>
+
+<script>
+  // -------- Params (robust) --------
+  const params = new URLSearchParams(location.search);
+
+  // Accept ds with or without a trailing -YYYYMMDD
+  const rawDs = params.get("ds") || "";
+  const parts = rawDs.split("-");
+  const [country, tile, uid] = [parts[0], parts[1], parts[2]];
+  const trailingDate = parts[3] && /^\d{8}$/.test(parts[3]) ? parts[3] : null;
+
+  let d1 = params.get("d1") || "";
+  let d2 = params.get("d2") || "";
+  if (!d1 && trailingDate) d1 = trailingDate;
+  if (!d2 && trailingDate) d2 = trailingDate;
+
+  const index = (params.get("index") || "rgb").toLowerCase();
+
+  if (!country || !tile || !uid || !d1 || !d2) {
+    document.body.innerHTML =
+      "<p style='color:#fff;padding:20px;font:16px sans-serif'>Missing or bad params. Use ?ds=COUNTRY-TILE-UID&d1=YYYYMMDD&d2=YYYYMMDD&index=rgb#15/lat/lon</p>";
+    throw new Error("Bad params");
+  }
+
+  const hash = (location.hash || "#15/-20.5228/45.023").replace("#","");
+  const [zoomStr, latStr, lonStr] = hash.split("/");
+  const zoom = Number(zoomStr), lat = Number(latStr), lon = Number(lonStr);
+
+  // -------- Gamma Earth COG tiler --------
+  function productSuffix(idx) {
+    if (idx === "rgb") return "_TCI.tif";
+    if (idx === "ndvi") return "_NDVI.tif";
+    if (idx === "irp" || idx === "fcir") return "_IRP.tif";
+    return "_TCI.tif";
+  }
+  const lambdaBase =
+    "https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad";
+
+  const pid = (date) => `${tile}-${uid}-${date}`;
+
+  // Return a single-item array with the tile template, as Mapbox expects
+  function tilesFor(date, idx) {
+    const P = pid(date);
+    // IMPORTANT: s3:// URL is not URL-encoded to mirror your working page
+    const root = `${lambdaBase}/{z}/{x}/{y}@2x?url=s3://sentinel-s2dr3/${country}/${tile}/${P}`;
+    const suffix = productSuffix(idx);
+    return [`${root}/S2L2Ax10_${P}${suffix}`];
+  }
+
+  // -------- Mapbox base --------
+  mapboxgl.accessToken =
+    "pk.eyJ1IjoiZ2lyaXNocGFsbGFnYXR0aSIsImEiOiJja2h6NGVuc20wYndjMnlxaDExbzlsa3B2In0.e94ZfcoPleAA2nqjeX10ag";
+
+  // Use Satellite basemap and overlay our rasters
+  const satelliteStyle = "mapbox://styles/mapbox/satellite-streets-v12";
+
+  const beforeMap = new mapboxgl.Map({
+    container: "before",
+    style: satelliteStyle,
+    center: [lon, lat],
+    zoom,
+    maxZoom: 18
+  });
+  const afterMap = new mapboxgl.Map({
+    container: "after",
+    style: satelliteStyle,
+    center: [lon, lat],
+    zoom,
+    maxZoom: 18
+  });
+
+  // Helper: wait once for a Mapbox event
+  const once = (map, evt) => new Promise((res) => map.once(evt, res));
+
+  // Add our raster overlay (built from Gamma Earth) and a date badge
+  function addOverlay(map, date, idx, side) {
+    const srcId = `s2dr3_${side}`;
+    const lyrId = `s2dr3_${side}_layer`;
+
+    map.addSource(srcId, { type: "raster", tiles: tilesFor(date, idx), tileSize: 512 });
+    map.addLayer({
+      id: lyrId,
+      type: "raster",
+      source: srcId,
+      minzoom: 0,
+      maxzoom: 19,
+      paint: { "raster-resampling": "nearest" }
+    });
+
+    // date badge
+    const badge = document.createElement("div");
+    badge.className = "date-badge";
+    badge.textContent = formatDate(date);
+    map.getContainer().appendChild(badge);
+  }
+
+  function formatDate(yyyymmdd) {
+    if (!/^\d{8}$/.test(yyyymmdd)) return yyyymmdd;
+    return `${yyyymmdd.slice(0, 4)}-${yyyymmdd.slice(4, 6)}-${yyyymmdd.slice(6, 8)}`;
+  }
+
+  // Menus (index switch)
+  const menuL = document.getElementById("menuL");
+  ["rgb", "ndvi", "irp"].forEach((o) => {
+    const a = document.createElement("a");
+    a.id = `idx_${o}`;
+    a.textContent = o.toUpperCase();
+    a.href = `?ds=${country}-${tile}-${uid}&d1=${d1}&d2=${d2}&index=${o}#${zoom}/${lat}/${lon}`;
+    if (o === index) a.className = "active";
+    menuL.appendChild(a);
+  });
+
+  // Right menu label
+  const menuR = document.getElementById("menuR");
+  const b = document.createElement("a");
+  b.textContent = "S2DR3";
+  b.className = "active";
+  b.href = "#";
+  menuR.appendChild(b);
+
+  // Attribution: add "© Gamma Earth"
+  function addGammaAttribution() {
+    const inners = document.querySelectorAll(".mapboxgl-ctrl-attrib-inner");
+    inners.forEach((el) => {
+      if (el.querySelector(".gamma-earth")) return; // avoid dupes
+      const sep = document.createTextNode(" | ");
+      const a = document.createElement("a");
+      a.href = "https://gamma.earth";
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.className = "gamma-earth";
+      a.textContent = "© Gamma Earth";
+      el.append(sep, a);
+    });
+  }
+
+  // -------- Missing-date helpers (safer) --------
+  // Fill the note labels immediately so you never get "No preview for "
+  function setNoteLabels(){
+    const dl = document.getElementById('dateLeft');
+    const dr = document.getElementById('dateRight');
+    if (dl) dl.textContent = formatDate(d1);
+    if (dr) dr.textContent = formatDate(d2);
+  }
+  
+  // Show the red note and set its date explicitly
+  function showMissing(side, date){
+    const id  = side === 'left' ? 'noteLeft' : 'noteRight';
+    const el  = document.getElementById(id);
+    if (!el) return;
+    const sp  = el.querySelector('span');
+    if (sp) sp.textContent = formatDate(date);
+    el.style.display = 'block';
+  }
+  
+  // lon/lat -> tile coords
+  function lonLatToTile(lon, lat, z) {
+    const x = Math.floor(((lon + 180) / 360) * Math.pow(2, z));
+    const y = Math.floor(
+      ((1 - Math.log(Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180)) / Math.PI) / 2) *
+      Math.pow(2, z)
+    );
+    return { x, y };
+  }
+  
+  // Probe multiple zooms; only show "missing" if all of them fail
+  function probeOne(date, idx, side) {
+    const tmpl = tilesFor(date, idx)[0];
+  
+    // Try the current zoom (rounded) plus two safe fallbacks
+    const z0 = Math.max(0, Math.round(zoom));
+    const zList = Array.from(new Set([z0, 12, 10])); // dedupe
+  
+    let failures = 0;
+    const total = zList.length;
+    let anySuccess = false;
+  
+    zList.forEach(zc => {
+      const { x, y } = lonLatToTile(lon, lat, zc);
+      const url = tmpl
+        .replace('{z}', zc)
+        .replace('{x}', x)
+        .replace('{y}', y)
+        + (tmpl.includes('?') ? '&' : '?') + '_cb=' + Date.now(); // cache-bust
+  
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+  
+      img.onload = () => { anySuccess = true; };
+      img.onerror = () => {
+        failures += 1;
+        if (failures === total && !anySuccess) {
+          showMissing(side, date);
+        }
+      };
+  
+      // If the last probe loads first, we still won’t show missing
+      img.src = url;
+    });
+  }
+
+
+  // ---- Initialize in the correct order
+  (async function init() {
+    // set the labels right away
+    setNoteLabels();
+
+    // 1) wait until BOTH styles are fully loaded
+    await Promise.all([once(beforeMap, "load"), once(afterMap, "load")]);
+
+    // 2) add our S2DR3 overlays (per chosen index) to each map
+    addOverlay(beforeMap, d1, index, "before");
+    addOverlay(afterMap,  d2, index, "after");
+
+    // 3) create the vertical slider AFTER overlays exist
+    const compare = new mapboxgl.Compare(beforeMap, afterMap, "#comparison-container", {});
+
+    // 4) attribution + missing-date probes
+    addGammaAttribution();
+    probeOne(d1, index, "left");
+    probeOne(d2, index, "right");
+
+    // Optional: nudge a repaint
+    beforeMap.resize();
+    afterMap.resize();
+
+    // Optional: log a sample tile
+    const sample = tilesFor(d1, index)[0]
+      .replace("{z}", "12").replace("{x}", "2048").replace("{y}", "1363");
+    console.log("Sample Gamma tile:", sample);
+  })();
+</script>
+
+
+
+</body>
+</html>
+
