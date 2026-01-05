@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — User Dashboards</title>
+  <style>
+    :root { --border:#e5e7eb; --bg:#0b1220; --fg:#e5e7eb; --muted:#9ca3af; }
+    html, body { height:100%; margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .wrap { display:flex; height:100%; }
+
+    /* Left panel */
+    .left {
+      width: 420px;
+      border-right: 1px solid var(--border);
+      padding: 14px;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+    .toolbar { display:flex; gap:10px; align-items:center; margin-bottom:10px; }
+    .toolbar input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      outline: none;
+    }
+    .toolbar button {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: white;
+      cursor: pointer;
+    }
+    .status { font-size: 12px; color: var(--muted); margin: 6px 0 10px; }
+
+    table { width:100%; border-collapse: collapse; }
+    thead th {
+      text-align:left;
+      font-size: 12px;
+      color: #6b7280;
+      padding: 8px 8px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: white;
+      z-index: 1;
+    }
+    tbody td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      vertical-align: middle;
+    }
+    tbody tr {
+      cursor: pointer;
+    }
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+    tbody tr.active {
+      background: #eef2ff;
+    }
+    .pill {
+      display:inline-block;
+      font-size: 12px;
+      padding: 3px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: #374151;
+    }
+
+    /* Right panel */
+    .right { flex:1; background: #0b1220; }
+    .right iframe { width:100%; height:100%; border:0; display:block; background:white; }
+
+    /* Tiny helper */
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; color:#6b7280; }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="left">
+      <div class="toolbar">
+        <input id="q" placeholder="Search user_id or name…" />
+        <button id="reloadBtn" title="Reload users">Reload</button>
+      </div>
+      <div class="status" id="status">Loading users…</div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 34%;">User ID</th>
+            <th style="width: 46%;">Name</th>
+            <th style="width: 20%; text-align:right;">Credits</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+
+      <div style="margin-top:10px" class="mono" id="debug"></div>
+    </div>
+
+    <div class="right">
+      <iframe id="dashFrame" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <script>
+    // ========= CONFIG =========
+    // Your API endpoint (must allow CORS for your website origin)
+    const USERS_API = "https://ge-api-862134799361.europe-west1.run.app/admin/user_id,name,credits";
+
+    // Put your Looker Studio *embed* URL here (base, without params.uid=...)
+    // Example:
+    // const DASH_BASE = "https://lookerstudio.google.com/embed/reporting/<REPORT_ID>/page/<PAGE_ID>";
+    const DASH_BASE = "https://lookerstudio.google.com/embed/reporting/2fda8a76-0ebc-4237-a76a-434e0b039487/page/U1gEF";
+
+    // Parameter name expected by your Looker report (you’ve been using uid)
+    const LOOKER_PARAM_NAME = "uid";
+    // ==========================
+
+    const els = {
+      status: document.getElementById("status"),
+      rows: document.getElementById("rows"),
+      q: document.getElementById("q"),
+      reloadBtn: document.getElementById("reloadBtn"),
+      dashFrame: document.getElementById("dashFrame"),
+      debug: document.getElementById("debug"),
+    };
+
+    /** Basic HTML escape */
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c =>
+      ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c])
+    );
+
+    /** Build dashboard URL for selected user */
+    function dashboardUrlFor(uid) {
+	  //console.log(uid)
+      if (!uid) return DASH_BASE;
+      const glue = DASH_BASE.includes("?") ? "&" : "?";
+	  const params = `{"ds0.uid":"${uid}","ds1.uid1":"${uid}"}`
+	  return `${DASH_BASE}?params=${encodeURIComponent(params)}`;
+      //return `${DASH_BASE}${glue}params.${encodeURIComponent(LOOKER_PARAM_NAME)}=${encodeURIComponent(uid)}`;
+    }
+
+    /** Update iframe + URL in browser (so reload preserves selection) */
+    function selectUser(user) {
+      const uid = user.user_id;
+
+      // UI highlight
+      document.querySelectorAll("tbody tr.active").forEach(tr => tr.classList.remove("active"));
+      const tr = document.querySelector(`tr[data-uid="${CSS.escape(String(uid))}"]`);
+      if (tr) tr.classList.add("active");
+
+      // Update iframe
+      els.dashFrame.src = dashboardUrlFor(uid);
+
+      // Persist selection in page URL (?uid=...)
+      const u = new URL(window.location.href);
+      u.searchParams.set("uid", uid);
+      history.replaceState({}, "", u.toString());
+
+      els.debug.textContent = `Selected uid=${uid} → iframe src updated`;
+    }
+
+    /** Render table */
+    function render(users) {
+	  users.sort((a, b) => (b.credits ?? 0) - (a.credits ?? 0));
+      const query = els.q.value.trim().toLowerCase();
+      const filtered = !query ? users : users.filter(u =>
+        String(u.user_id ?? "").toLowerCase().includes(query) ||
+        String(u.name ?? "").toLowerCase().includes(query)
+      );
+
+      els.rows.innerHTML = filtered.map(u => `
+        <tr data-uid="${esc(u.user_id)}" title="Load dashboard">
+          <td class="mono">${esc(u.user_id)}</td>
+          <td>${esc(u.name || "")}</td>
+          <td style="text-align:right;"><span class="pill">${esc(u.credits ?? "")}</span></td>
+        </tr>
+      `).join("");
+
+      // Row click handler
+      els.rows.querySelectorAll("tr").forEach(tr => {
+        tr.addEventListener("click", () => {
+          const uid = tr.getAttribute("data-uid");
+          const user = users.find(x => String(x.user_id) === String(uid));
+          if (user) selectUser(user);
+        });
+      });
+
+      els.status.textContent = `${filtered.length} users shown (${users.length} total)`;
+    }
+
+    /** Fetch users */
+    async function loadUsers() {
+      els.status.textContent = "Loading users…";
+      els.debug.textContent = "";
+
+      let data;
+      try {
+        const r = await fetch(USERS_API, { method: "GET" });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        data = await r.json();
+      } catch (e) {
+        els.status.textContent = "Failed to load users.";
+        els.debug.textContent =
+          `Fetch error: ${e}\n\nCommon cause: CORS. Your API must return Access-Control-Allow-Origin for this site.`;
+        return;
+      }
+
+      if (!Array.isArray(data)) {
+        els.status.textContent = "Unexpected API response (expected JSON array).";
+        els.debug.textContent = `Got: ${typeof data}`;
+        return;
+      }
+
+      // Render
+	  //data.sort((a, b) => (b.credits ?? 0) - (a.credits ?? 0));
+      render(data);
+
+      // Auto-select:
+      // 1) uid from page URL (?uid=...) if present
+      // 2) else first user
+      const urlUid = new URL(window.location.href).searchParams.get("uid");
+      const initial = urlUid
+        ? data.find(u => String(u.user_id) === String(urlUid))
+        : data[0];
+
+      if (initial) selectUser(initial);
+    }
+
+    // Search
+    els.q.addEventListener("input", () => loadUsersCached());
+    els.reloadBtn.addEventListener("click", () => loadUsers());
+
+    // Cache users in memory for search without refetch
+    let _usersCache = null;
+    async function loadUsersCached() {
+      if (!_usersCache) {
+        // first load
+        await loadUsers();
+        return;
+      }
+      render(_usersCache);
+    }
+
+    // Override loadUsers to keep cache
+    const _loadUsers = loadUsers;
+    loadUsers = async function() {
+      await _loadUsers();
+      // after successful load, cache from DOM? Better: refetch and store directly
+      // We'll refetch again to store: simplest is to fetch once here instead:
+      try {
+        const r = await fetch(USERS_API, { method: "GET" });
+        if (r.ok) {
+          const d = await r.json();
+          if (Array.isArray(d)) _usersCache = d;
+        }
+      } catch {}
+    };
+
+    // Boot
+    (async () => {
+      // If the embed URL isn't set, show a helpful message
+      if (DASH_BASE === "PASTE_YOUR_LOOKER_EMBED_URL_HERE") {
+        els.status.textContent = "Set DASH_BASE in the HTML to your Looker Studio embed URL.";
+        els.debug.textContent = "Find it in Looker Studio: Share → Embed report → copy the iframe src.";
+        return;
+      }
+      // Initial load (and cache fill)
+      try {
+        const r = await fetch(USERS_API, { method: "GET" });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const d = await r.json();
+        if (!Array.isArray(d)) throw new Error("API did not return JSON array");
+        _usersCache = d;
+        render(_usersCache);
+
+        const urlUid = new URL(window.location.href).searchParams.get("uid");
+        const initial = urlUid
+          ? _usersCache.find(u => String(u.user_id) === String(urlUid))
+          : _usersCache[0];
+        if (initial) selectUser(initial);
+
+        els.status.textContent = `${_usersCache.length} users loaded`;
+      } catch (e) {
+        els.status.textContent = "Failed to load users.";
+        els.debug.textContent =
+          `Fetch error: ${e}\n\nMost common cause: CORS. Ensure your API sends Access-Control-Allow-Origin.`;
+      }
+    })();
+  </script>
+</body>
+</html>
