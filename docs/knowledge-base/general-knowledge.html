@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gamma Earth > Documentation > General Knowledge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html">
+        <img src="../ge_logo.png" alt="Gamma Earth logo" />
+        <span>Gamma&nbsp;Earth&nbsp;Documentation</span>
+      </a>
+    </div>
+  </header>
+
+  <main id="content">
+    <article class="prose">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="../../index.html">Docs Home</a>
+        <span>›</span>
+        <a href="../index.html">Knowledge Base</a>
+        <span>›</span>
+        <span>General Knowledge</span>
+      </nav>
+
+      <h1>S2DR3 and S2DR4 (S2DRx) General Knowledge</h1>
+      <h2>Output Files of S2DRx</h2>
+      <p>S2DRx output will contain 4 products:
+
+      <ul>
+        <li>S2L2Ax10_T[MGRS]-[UID]-[DATE]_MS.tif – 10-band multi-spectal image</li>
+        <li>S2L2Ax10_T[MGRS]-[UID]-[DATE]_TCI.tif – True colour RGB image</li>
+        <li>S2L2Ax10_T[MGRS]-[UID]-[DATE]_NDVI.tif – Pseudo-colour NDVI image</li>
+        <li>S2L2Ax10_T[MGRS]-[UID]-[DATE]_IRP.tif – Ifra-red preudo-colour image</li>
+      </p>
+
+      <h2>Temporal availability</h2>
+      <p></p>
+
+      <h2>Spectral Band Information</h2>
+      <p></p>
+
+      <h2>Min-Max Processing Areas</h2>
+      <p></p>      
+
+    </article>
+  </main>
+
+  <footer>
+    <p>© <span id="year"></span> Gamma Earth. All rights reserved.</p>
+    <p class="footer-meta">
+      Main site: <a href="https://gamma.earth" target="_blank" rel="noopener">gamma.earth</a>
+    </p>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
