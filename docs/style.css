@@ -98,6 +98,8 @@ main { max-width: var(--maxw); margin: 32px auto 80px; padding: 0 20px; }
 }
 .prose pre code { background: none; border: 0; padding: 0; font-size: 0.95em; }
 
+.note {font-style: italic; color: #ddd}
+
 footer {
   max-width: var(--maxw); margin: 40px auto; padding: 0 20px;
   color: var(--muted); font-size: 14px;
