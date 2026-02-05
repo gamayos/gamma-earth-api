@@ -98,6 +98,76 @@ main { max-width: var(--maxw); margin: 32px auto 80px; padding: 0 20px; }
 }
 .prose pre code { background: none; border: 0; padding: 0; font-size: 0.95em; }
 
+/* Tables */
+.prose table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1.2rem 0 1.6rem;
+  background: rgba(46, 43, 73, 0.35); /* subtle surface */
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden; /* keeps rounded corners */
+  font-size: 0.95rem;
+}
+
+.prose thead th {
+  background: rgba(46, 43, 73, 0.75);
+  color: var(--text);
+  text-align: left;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: bottom;
+}
+
+.prose thead tr:first-child th {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.prose tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(58, 55, 91, 0.65);
+  color: rgba(255, 255, 255, 0.95);
+  vertical-align: top;
+}
+
+.prose tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.prose tbody tr:nth-child(even) td {
+  background: rgba(46, 43, 73, 0.25);
+}
+
+/* Make code inside tables look consistent */
+.prose table code {
+  background: rgba(46, 43, 73, 0.65);
+  border: 1px solid rgba(58, 55, 91, 0.85);
+  padding: 0.1em 0.35em;
+  border-radius: 8px;
+  font-size: 0.92em;
+}
+
+/* Optional: right-align numeric columns (add class="num" on th/td) */
+.prose table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Mobile friendliness: allow horizontal scroll instead of breaking layout */
+.prose .table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 14px;
+}
+.prose .table-wrap table {
+  min-width: 640px;
+}
+
 .note {font-style: italic; color: #ddd}
 
 footer {
