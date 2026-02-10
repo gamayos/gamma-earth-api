@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gamma Earth · Documentation · S2DR3 SDK Manual (2025-12-18)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html">
+        <img src="../ge_logo.png" alt="Gamma Earth logo" />
+        <span>Gamma&nbsp;Earth&nbsp;·&nbsp;Documentation</span>
+      </a>
+    </div>
+  </header>
+
+  <main id="content">
+    <article class="prose">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="../index.html">Docs</a>
+        <span>›</span>
+        <a href="./index.html">Knowledge Base</a>
+        <span>›</span>
+        <span>S2DR3 SDK Manual</span>
+      </nav>
+
+      <h1>S2DR3 SDK Manual</h1>
+      <p class="note">Document date: 2025-12-18</p>
+
+      <h2>Installation</h2>
+      <p><strong>Requires:</strong> Linux, Python 3.12 or later</p>
+      <p><strong>GPUs tested:</strong> NVIDIA T4, P100, V100, A100; 16GB VRAM</p>
+
+      <h3>1) Install NVIDIA Drivers</h3>
+      <p>
+        <a href="https://developer.nvidia.com/cuda-downloads" target="_blank" rel="noopener">
+          https://developer.nvidia.com/cuda-downloads
+        </a>
+      </p>
+
+      <h3>2) Install GDAL and the S2DR3 module wheel</h3>
+      <pre><code>% apt install -qq pip gdal-bin
+% pip -q install https://storage.googleapis.com/0x7ff601307fa5/s2dr3-20251218.1-cp312-cp312-linux_x86_64.whl</code></pre>
+
+      <h3>3) Configure paths in <code>infer.py</code></h3>
+      <p>
+        In <code>infer.py</code> configure default paths for input data (downloaded Sentinel-2 data), output data (super-resolved data),
+        as well as logs to the desired locations on your file system.
+        <strong>Note:</strong> Sentinel-2 will be automatically downloaded to the <code>&lt;datapath&gt;</code> folder.
+      </p>
+
+      <p><strong>Example:</strong></p>
+      <pre><code>parser.add_argument('--datapath', type=str, default='/home/ubuntu/data/datapath', help='Input image or folder')
+
+parser.add_argument('--savepath', type=str, default='/home/ubuntu/data/savepath', help='Output image or folder')
+
+parser.add_argument('--logpath', type=str, default='/home/ubuntu/data/logs', help='Path for logging')</code></pre>
+
+      <h2>Inference (GPU)</h2>
+      <pre><code>% cd &lt;path-to-the-infer.py&gt;
+% python infer.py -f --date &lt;YYYY-MM-DD&gt; --aoi &lt;W S E N&gt;</code></pre>
+
+      <h3>Examples</h3>
+      <pre><code>% python infer.py -f --date 2021-08-15 --aoi 30.8520 50.3993 30.8750 50.4131
+% python infer.py -f --date 2022-07-18 --aoi -47.8103 -21.2284 -47.7000 -21.1312
+% python infer.py -f --date 2022-07-18 --geojson /content/input.geojson
+% python infer.py -f --date_range 2021-08-01 2021-09-30 --aoi 30.8520 50.3993 30.8750 50.4131
+% python infer.py -f --date_range 2022-10-01 2022-10-30 --mgrs 32TLS
+% python infer.py -f --date 2022-10-30 --mgrs 32TLS --NM 3 4 --output_bands B02 B03 B04 B05 B08
+% python infer.py -f --date 2022-10-30 --geojson /input-path/aoi.geojson</code></pre>
+
+      <h2>Main parameters</h2>
+      <ul>
+        <li><code>--date</code> — Exact date of the Sentinel-2 scene (will fail if the scene does not exist)</li>
+        <li><code>--date_range</code> — Number of days back from the target date to search</li>
+        <li><code>--aoi</code> — Bounding box of the Area-of-interest. Should fit entirely within the Sentinel-2 scene. Should not exceed 10×10 km (100 sq. km) in this dev version.</li>
+        <li><code>--max_clouds</code> — Maximum cloud cover allowed in the date search</li>
+        <li><code>--geojson</code> — Input GeoJSON file with collection of AOI polygons</li>
+        <li><code>--mgrs</code> — MGRS tile index</li>
+        <li><code>--iso</code> — 2-digit ISO country code</li>
+        <li><code>--NM</code> — Indices of MGRS subsubtile on the 9×9 grid</li>
+        <li><code>--UV</code> — Indices of MGRS subtile on the 3×3 grid</li>
+        <li><code>--datapath</code> — Path for storing original Sentinel-2 data (default: <code>/content/datapath</code>)</li>
+        <li><code>--savepath</code> — Path to the output super-resolved data (defaults: <code>/content/savepath</code>)</li>
+        <li><code>--logpath</code> — Log file path (defaults: <code>/content</code>)</li>
+        <li><code>--bands_out</code> — Spectral bands to generate in the Sentinel-2 format (defaults to BGRN: <code>B02 B03 B04 B08</code>)</li>
+      </ul>
+
+      <h2>Options</h2>
+      <ul>
+        <li><code>-c</code>, <code>--cogs</code> — Generate COG outputs TCI/NDVI/IRP</li>
+        <li><code>-f</code>, <code>--force</code> — Force re-processing of existing products</li>
+        <li><code>-t</code>, <code>--get_tile</code> — Force downloading entire S2 MGRS tile</li>
+        <li><code>-d</code>, <code>--debug</code> — Print debugging information</li>
+        <li><code>-q</code>, <code>--quiet</code> — Run completely quiet</li>
+        <li><code>-s</code>, <code>--simulate</code> — Simulate on a small test tile</li>
+      </ul>
+
+      <h2>AWS Credentials</h2>
+      <p>AWS credentials may be updated by setting the following environmental variables:</p>
+      <pre><code>$AWS_ACCESS_KEY_ID = *****
+$AWS_SECRET_ACCESS_KEY = *************</code></pre>
+
+      <h2>Inputs</h2>
+      <p>Automatically downloaded Sentinel-2 L2A</p>
+
+      <h2>Outputs</h2>
+      <ul>
+        <li>10-channel MS 16-bit <code>uint16</code> GeoTIFF in original UTM projection</li>
+        <li>4-channel BGRN (B2,B3,B4,B8) 16-bit <code>uint16</code> GeoTIFF in original UTM projection</li>
+        <li>4-channel RGBA 8-bit GeoTIFF in Web-mercator projection</li>
+      </ul>
+
+      <h2>Output logfile</h2>
+      <pre><code>{
+  "PID": "T33VXL-20220625",
+  "mode": "mgrs",
+  "date": "20220625",
+  "MGRS": "33VXL",
+  "ISO": "SE",
+  "dimensions": [
+    11430,
+    11340
+  ],
+  "bbox": [
+    17.80895790985397,
+    63.460773781104685,
+    18.018729265308803,
+    63.54632126474991
+  ],
+  "bands": [
+    "B02",
+    "B03",
+    "B04",
+    "B08"
+  ],
+  "save_path_MS": "/content/savepath/SE/T33VXL/T33VXL-20220625/S2L2Ax10_T33VXL-20220625-00_MS.tif",
+  "save_path_TCI": "/content/savepath/SE/T33VXL/T33VXL-20220625/S2L2Ax10_T33VXL-20220625-00_TCI.tif",
+  "overlap": 1.0,
+  "boa_bias": "false"
+}</code></pre>
+
+      <h2>System requirements</h2>
+      <ul>
+        <li>Ubuntu Linux (tested on Linux-4.19.112+-x86_64-with-Ubuntu-18.04-bionic)</li>
+        <li>GPU 16GB (tested on Tesla P100-PCIE-16GB)</li>
+        <li>RAM 16GB (at least, preferably 32GB)</li>
+      </ul>
+
+      <h2>Limitations</h2>
+      <ul>
+        <li>Exact date of the Sentinel-2 scene (will fail if the scene does not exist)</li>
+        <li>Bounding box of the Area-of-interest should fit entirely within the Sentinel-2 scene.</li>
+        <li>AOI should not exceed 10×10 km (1000 × 1000 px, 1 MPx, 100 sq. km) in this dev version.</li>
+        <li>SentinelHub has a limitation of width/height = 2500 px</li>
+      </ul>
+    </article>
+  </main>
+
+  <footer>
+    <p>© <span id="year"></span> Gamma Earth. All rights reserved.</p>
+    <p class="footer-meta">
+      Main site: <a href="https://gamma.earth" target="_blank" rel="noopener">gamma.earth</a>
+    </p>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
