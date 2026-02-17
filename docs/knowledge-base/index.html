@@ -26,7 +26,7 @@
     <article class="prose"> 
       <nav class="breadcrumb" aria-label="Breadcrumb">
         <a href="../index.html">Docs Home</a>
-        <p class="note">Last update: 5 February 2026</p>
+        <p class="note">Last update: 17 February 2026</p>
       </nav>
 
       <h2>Knowledge Base</h2>
@@ -41,15 +41,21 @@
       <ol>
         <li><a href="S2DR3-API-README-20250430.html">S2DR3 API Manual (ver. 20250430)</a></li>
         <li><a href="https://colab.research.google.com/drive/1Jz6P5cRnI6u9flM_Q6u9aKaTNyLqBKUI" target="_blank">Python integration examples on Google Colab</a></li>
-        <li><i>Change Log (coming soon)</i></li>
       </ol>
 
       <h3>Python SDK - Latest release: s2dr3-20251218</h3>
-      <ol>
+      <ul>
         <li>LATEST: <a href="S2DR3-SDK-README-20251218.html">S2DR3 SDK Manual (ver. 20251218)</a></li>
         <li><a href="S2DR3-SDK-README-20250522.html">S2DR3 SDK Manual (ver. 20250522)</a></li>
-        <li><i>Change Log (coming soon)</i></li>
-      </ol>
+        <li><i>Change Log:</i>
+          <ul>
+            <li>New Main parameter <i>date_range</i>: Number of days back from the target date to search</li>
+            <li>New Main parameter <i>max_clouds</i>:  Maximum cloud cover allowed in the date search</li>
+            <li>New Option <i>-c, --cogs</i>: Generate COG outputs TCI/NDVI/IRP</li>
+          </ul>
+        <li><b>(NEW)</b> S2DR4 switch: use <i>from s2dr4.inferutils import infer</i> in infer.py to switch from S2DR3 to S2DR</li>
+        </li>
+      </ul>
 
       <h3>Google Colab - Open Access Trial</h3>
       <ul>
