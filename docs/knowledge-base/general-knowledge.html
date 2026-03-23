@@ -31,7 +31,7 @@
       </nav>
 
       <h1>S2DR3 and S2DR4 (S2DRx) General Knowledge</h1>
-      <p class="note">Last update: 5 February 2026</p>
+      <p class="note">Last update: 23 March 2026</p>
 
       <h3>1. Temporal availability</h3>
       <p>S2DRx can super-resolve and cloud-mitigate Sentinel-2 scenes from January 1st, 2018 onward with the same cadence (5-day revisit). The full scene catalog is available on <a href="https://browser.dataspace.copernicus.eu/" target="_blank">Copernicus Hub website</a>.</p>
@@ -170,7 +170,34 @@
         S2DR3/4 produces 10 super-resolved spectral bands corresponding to Sentinel-2 bands B2–B8A, B11 and B12.
       </p>
     
-
+      <a href="#SDK_requirements"><h3>5. System Requirements — Python SDK Local Installation</h3></a>
+      <p>Operating System</p>
+      <ul>
+        <li>Linux (Ubuntu 18.04 or later recommended)</li>
+        <li>Python 3.18</li>
+      </ul>
+      <p>Hardware</p>
+      <p>CPU</p>
+      <ul>
+        <li>Standard x86_64 processor</li>
+      </ul>
+      <p>GPU (<i>required</i>)</p>
+      <ul>
+        <li>NVIDIA GPU with CUDA support</li>
+        <li>Minimum 32 GB VRAM</li>
+        <li>Tested on: T4, P100, V100, A100</li>
+      </ul>      
+      <p>RAM</p>
+      <ul>
+        <li>Minimum 16 GB</li>
+        <li>32 GB recommended</li>
+      </ul>
+      <p>Dependencies</p>
+      <ul>
+        <li>NVIDIA CUDA drivers — developer.nvidia.com/cuda-downloads</li>
+        <li>GDAL (gdal-bin)</li>
+        <li>pip</li>
+      </ul>      
     </article>
   </main>
 
