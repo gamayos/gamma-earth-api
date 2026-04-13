@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gamma Earth · Documentation · Legal · Fee Policy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+  <header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html">
+        <img src="../ge_logo.png" alt="Gamma Earth logo" />
+        <span>Gamma&nbsp;Earth&nbsp;Documentation</span>
+      </a>
+    </div>
+  </header>
+  <main id="content">
+    <article class="prose">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="../index.html">Docs Home</a>
+        <span>›</span>
+        <a href="index.html">Legal</a>
+        <span>›</span>
+        Fee Policy
+      </nav>
+      <h1>Fee Policy</h1>
+      <p class="note">Version 2.0 — April 2026 &nbsp;·&nbsp; Annex 1 to the Gamma Earth License Agreement</p>
+
+      <p>This Fee Policy supplements the License Agreement with regard to the financial terms and conditions applicable to License Fees for use of the Software and Services. Capitalised terms have the meanings given in the License Agreement or, where defined herein, the meanings set out below.</p>
+      <p>This Fee Policy supersedes and replaces all prior versions. It is published on the Platform at <a href="https://gamma.earth">gamma.earth</a> and incorporated by reference into the License Agreement as part of Gamma Earth's Policies.</p>
+
+      <hr />
+
+      <h2>1. Key Definitions</h2>
+      <ul>
+        <li><strong>"Credits"</strong> means the unit of account used to purchase and measure processing capacity on the Platform. Credits are either purchased via a Top Up or allocated as complimentary credits under the Base Plan, and are consumed each time a processing job is executed.</li>
+        <li><strong>"Top Up"</strong> means a one-time purchase of a defined quantity of Credits, as set out in Section 3.</li>
+        <li><strong>"Base Plan"</strong> means the free-of-charge account tier providing a monthly allocation of complimentary Credits, as described in Section 2.2.</li>
+        <li><strong>"Professional Plan"</strong> means the paid account tier activated upon a Top Up purchase, as described in Section 2.3.</li>
+        <li><strong>"Enterprise Plan"</strong> means the account tier for Users requiring 10,000 or more Credits or custom commercial arrangements, as described in Section 2.4.</li>
+        <li><strong>"Academic Plan"</strong> means the account tier available to qualifying academic institutions upon application, as described in Section 2.5.</li>
+        <li><strong>"Region"</strong> means a geographic pricing zone as defined in Section 4 and Schedule 1, which determines the credit-to-km² conversion rate applicable to each processing job.</li>
+        <li><strong>"License Fees"</strong> means all amounts payable by the Licensee to Gamma Earth under the License Agreement, including Top Up purchases.</li>
+      </ul>
+
+      <hr />
+
+      <h2>2. Account Plans</h2>
+
+      <h3>2.1 Plan Overview</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Plan</th><th>Credit Allocation</th><th>Access</th><th>Activation</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Base</strong></td><td>100 complimentary Credits/month; expire end of month; no rollover</td><td>Google Colab only; single fixed-size AOI per job</td><td>Default for all new accounts</td></tr>
+            <tr><td><strong>Professional</strong></td><td>Purchased Credits via Top Up; no monthly refresh</td><td>Google Colab, Cloud API, SDK; full feature set</td><td>Automatically activated upon any Top Up purchase; valid for one calendar month; renews upon further Top Up</td></tr>
+            <tr><td><strong>Enterprise</strong></td><td>10,000+ Credits; custom terms may apply</td><td>Full feature set; priority support; custom development</td><td>Contact Gamma Earth at <a href="mailto:info@gamma.earth">info@gamma.earth</a></td></tr>
+            <tr><td><strong>Academic</strong></td><td>As agreed upon application; non-commercial use only</td><td>As agreed; subject to Academic License in the License Agreement</td><td>Apply via <a href="mailto:info@gamma.earth">info@gamma.earth</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>2.2 Base Plan</h3>
+      <p>All new accounts are automatically enrolled in the Base Plan. Each account receives 100 complimentary Credits at the start of each calendar month. Complimentary Credits:</p>
+      <ul>
+        <li>do not roll over; unused complimentary Credits expire at the end of the calendar month in which they are allocated;</li>
+        <li>may only be used via the Google Colab interface, subject to a single fixed-size AOI per processing job;</li>
+        <li>may not be used to access the Cloud API or SDK;</li>
+        <li>have no monetary value and are not refundable under any circumstances.</li>
+      </ul>
+      <p>Processing Outputs (super-resolved images) generated under the Base Plan will be published on Gamma Earth's public WebGIS map and remain available for download exclusively to the Account owner. By using the Base Plan, the User expressly consents to this publication.</p>
+
+      <h3>2.3 Professional Plan</h3>
+      <p>Professional Plan status is activated automatically upon any Top Up purchase. It:</p>
+      <ul>
+        <li>is valid for one calendar month from the date of the Top Up purchase that activated or most recently renewed it;</li>
+        <li>is automatically renewed upon each subsequent Top Up purchase made before expiry of the current period;</li>
+        <li>lapses automatically if no further Top Up is purchased within the validity period, at which point the Account reverts to the Base Plan.</li>
+      </ul>
+      <p>Reversion to the Base Plan does not affect any purchased Credits remaining in the Account. Those Credits remain valid and consumable for twenty-four (24) months from their purchase date, but access to Professional Plan features is suspended until the next Top Up.</p>
+
+      <h3>2.4 Enterprise Plan</h3>
+      <p>The Enterprise Plan covers arrangements involving 10,000 or more Credits, or requiring custom commercial terms, priority support, or bespoke development services. Enterprise Plans are not available via the self-serve store. Contact <a href="mailto:info@gamma.earth">info@gamma.earth</a> to discuss terms. Enterprise arrangements may be governed by a separate Order Form or addendum.</p>
+
+      <h3>2.5 Academic Plan</h3>
+      <p>The Academic Plan is available to qualifying universities and academic research institutions for non-commercial research only. It is subject to the Academic License conditions in the License Agreement, including the attribution requirement upon publication. To apply, contact <a href="mailto:info@gamma.earth">info@gamma.earth</a>. Terms, credit allocations, and durations are agreed individually upon application.</p>
+
+      <hr />
+
+      <h2>3. Top Up Packages and Pricing</h2>
+
+      <h3>3.1 Fixed Top Up Packages</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Package</th><th>Credits</th><th>Price (EUR)</th><th>Price per Credit</th><th>Equivalent km² (Region A)</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Small</strong></td><td>160</td><td>€320</td><td>€2.00</td><td>160 km²</td></tr>
+            <tr><td><strong>Medium</strong></td><td>1,000</td><td>€1,600</td><td>€1.60</td><td>1,000 km²</td></tr>
+            <tr><td><strong>Large</strong></td><td>10,000</td><td>€8,000</td><td>€0.80</td><td>10,000 km²</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Equivalent km² shown for Region A (1 credit = 1 km²). Actual processing area varies by Region; see Section 4.</p>
+
+      <h3>3.2 Custom Top Up</h3>
+      <p>Users may purchase a Custom Top Up by specifying either a EUR amount or a number of Credits. The Platform displays the equivalent processing area per Region in real time. Custom Top Ups are priced as follows:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Credit quantity purchased</th><th>Price per Credit (EUR)</th></tr></thead>
+          <tbody>
+            <tr><td>1 – 999 credits</td><td>€2.00</td></tr>
+            <tr><td>1,000 – 9,999 credits</td><td>€1.60</td></tr>
+            <tr><td>10,000+ credits</td><td>Enterprise Plan — contact <a href="mailto:info@gamma.earth">info@gamma.earth</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Where a Custom Top Up is equal to or greater than a fixed package at a lower total cost, the Platform will recommend the fixed package:</p>
+      <ul>
+        <li>Custom purchases of 800 or more Credits at €2.00/credit (≥€1,600) will prompt a recommendation to purchase the Medium package (1,000 Credits for €1,600).</li>
+        <li>Custom purchases of 5,000 or more Credits at €1.60/credit (≥€8,000) will prompt a recommendation to purchase the Large package (10,000 Credits for €8,000).</li>
+      </ul>
+      <p class="note">No distinction is made between S2DR3 and S2DR4, or between API and SDK access. All modalities consume from the same Credit balance.</p>
+
+      <hr />
+
+      <h2>4. Regional Credit-to-km² Conversion</h2>
+      <p>Credits are consumed at different rates depending on the geographic Region of the AOI. The applicable Region is determined by the country in which the AOI is located, as defined in Schedule 1 below.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Region</th><th>Credits per km²</th><th>km² per Credit</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>A</strong></td><td>1.00</td><td>1.00</td><td>Standard rate</td></tr>
+            <tr><td><strong>B</strong></td><td>0.75</td><td>1.33</td><td>Reduced rate</td></tr>
+            <tr><td><strong>C</strong></td><td>0.50</td><td>2.00</td><td>Reduced rate</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Credit deductions are rounded up to the nearest whole credit. The Platform displays the expected deduction before a job is confirmed.</p>
+      <p>Gamma Earth reserves the right to reassign countries between Regions with advance notice to registered Users.</p>
+
+      <hr />
+
+      <h2>5. Credit Validity and Expiry</h2>
+      <ul>
+        <li><strong>Complimentary Credits (Base Plan):</strong> expire at end of the calendar month of allocation. No rollover.</li>
+        <li><strong>Purchased Credits (Top Ups):</strong> valid for twenty-four (24) months from the date of purchase. Unused Credits expire without refund.</li>
+        <li>Credits cannot be transferred between Accounts or exchanged for cash.</li>
+        <li>Upon Account closure or termination, unused purchased Credits are forfeited without refund, subject to any mandatory statutory rights.</li>
+      </ul>
+
+      <hr />
+
+      <h2>6. Prices and Currency</h2>
+      <p>All prices are denominated in Euro (EUR) unless stated otherwise in an Order Document or agreed separately in writing. Gamma Earth reserves the right to modify Credit prices and package compositions at any time with advance notice to registered Users. Price changes apply to new Top Up purchases only and do not affect Credits already purchased.</p>
+
+      <hr />
+
+      <h2>7. Taxes</h2>
+      <p>All prices are exclusive of taxes unless stated otherwise. The Licensee is responsible for all applicable taxes including VAT, sales tax, and similar charges. Where reverse charge VAT applies, Licensee is responsible for accounting for VAT accordingly. Licensee is responsible for providing accurate VAT registration details and company legal address at the time of purchase.</p>
+
+      <hr />
+
+      <h2>8. Payment Terms</h2>
+
+      <h3>8.1 Payment Methods</h3>
+      <p>Gamma Earth accepts payment methods indicated on the Platform at the time of purchase, processed via Stripe, Inc. Gamma Earth reserves the right to change accepted payment methods at its sole discretion.</p>
+
+      <h3>8.2 Advance Payment</h3>
+      <p>All Top Up purchases must be paid in full in advance. Credits are activated in the Account upon receipt and confirmation of payment.</p>
+
+      <h3>8.3 Late Payment</h3>
+      <p>Where payment is not received within thirty (30) days of the due date, Gamma Earth may: suspend the provision of all or part of the Services; terminate the License Agreement without notice or compensation; charge interest at a rate of 5% per annum on the outstanding amount; charge a reminder fee of CHF 50 per payment reminder issued; and/or engage a debt collection agency, with associated costs borne by the Licensee.</p>
+
+      <h3>8.4 No Offset</h3>
+      <p>The Licensee is not authorised to set off its claims against those of Gamma Earth.</p>
+
+      <h3>8.5 Refunds</h3>
+      <p>Unless otherwise agreed in writing, all Top Up purchases are non-refundable. This does not affect any mandatory statutory refund rights the Licensee may have.</p>
+
+      <hr />
+
+      <h2>9. Miscellaneous</h2>
+
+      <h3>9.1 Amendments</h3>
+      <p>Gamma Earth may amend this Fee Policy at its sole discretion and at any time. New versions are announced on the Platform. Amendments take effect immediately for new Licensees and at the start of the next billing cycle for existing Licensees, unless stated otherwise.</p>
+
+      <h3>9.2 No Waiver</h3>
+      <p>Any failure by Gamma Earth to enforce any right or provision of this Fee Policy will not constitute a waiver of those rights.</p>
+
+      <h3>9.3 Severability</h3>
+      <p>If any provision of this Fee Policy is found to be invalid, illegal, or unenforceable, the remaining provisions continue in full force.</p>
+
+      <h3>9.4 Governing Law and Jurisdiction</h3>
+      <p>This Fee Policy is governed by the substantive laws of Switzerland, excluding conflict of law rules. Any dispute arising out of or relating to this Fee Policy is subject to the exclusive jurisdiction of the courts of the city of Lausanne, Switzerland.</p>
+
+      <p>Any questions about this Fee Policy should be addressed to <a href="mailto:info@gamma.earth">info@gamma.earth</a>.</p>
+
+      <hr />
+
+      <h2>Schedule 1 — Pricing Regions</h2>
+      <p>This Schedule defines the assignment of countries to Regions A, B, and C for the purposes of Section 4. The applicable Region for a processing job is determined by the country in which the submitted AOI is located. Where an AOI spans multiple countries or Regions, the Region of the centroid of the AOI is applied.</p>
+      <p>Gamma Earth reserves the right to update this Schedule with advance notice to registered Users.</p>
+
+      <h3>Region A — Standard Rate (1 credit = 1 km²)</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th colspan="3">17 countries and territories</th></tr></thead>
+        <tbody>
+          <tr><td>Australia</td><td>Heard Island and McDonald Islands</td><td>Norfolk Island</td></tr>
+          <tr><td>Canada</td><td>Japan</td><td>Puerto Rico</td></tr>
+          <tr><td>Cayman Islands</td><td>New Zealand</td><td>Singapore</td></tr>
+          <tr><td>Cook Islands</td><td>Niue</td><td>United States Minor Outlying Islands</td></tr>
+          <tr><td>Coral Sea Islands</td><td>United States of America</td><td>United States Virgin Islands</td></tr>
+          <tr><td>US Naval Base Guantanamo Bay</td><td>Vatican</td><td></td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Region B — Reduced Rate (1 credit = 1.33 km²)</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th colspan="4">50 countries and territories</th></tr></thead>
+        <tbody>
+          <tr><td>Andorra</td><td>Curacao</td><td>Ireland</td><td>Saint Martin</td></tr>
+          <tr><td>Anguilla</td><td>Cyprus</td><td>Italy</td><td>Saint Pierre and Miquelon</td></tr>
+          <tr><td>Argentina</td><td>Denmark</td><td>Liechtenstein</td><td>San Marino</td></tr>
+          <tr><td>Aruba</td><td>Dhekelia Sovereign Base Area</td><td>Luxembourg</td><td>Sint Maarten</td></tr>
+          <tr><td>Austria</td><td>Faroe Islands</td><td>Malta</td><td>South Korea</td></tr>
+          <tr><td>Belgium</td><td>Finland</td><td>Monaco</td><td>Spain</td></tr>
+          <tr><td>Bermuda</td><td>France</td><td>Montenegro</td><td>Sweden</td></tr>
+          <tr><td>Brazil</td><td>Germany</td><td>Netherlands</td><td>Switzerland</td></tr>
+          <tr><td>British Indian Ocean Territory</td><td>Gibraltar</td><td>Norway</td><td>Taiwan</td></tr>
+          <tr><td>British Virgin Islands</td><td>Greece</td><td>Pitcairn Islands</td><td>United Kingdom</td></tr>
+          <tr><td>China</td><td>Greenland</td><td>Portugal</td><td>Wallis and Futuna</td></tr>
+          <tr><td>Clipperton Island</td><td>Hong Kong S.A.R.</td><td>Saint Barthelemy</td><td></td></tr>
+          <tr><td>Colombia</td><td>Iceland</td><td>Saint Helena</td><td></td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Region C — Reduced Rate (1 credit = 2 km²)</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th colspan="4">173 countries and territories</th></tr></thead>
+        <tbody>
+          <tr><td>Afghanistan</td><td>Federated States of Micronesia</td><td>Namibia</td><td>Tajikistan</td></tr>
+          <tr><td>Akrotiri Sovereign Base Area</td><td>Fiji</td><td>Nauru</td><td>Thailand</td></tr>
+          <tr><td>Åland Islands</td><td>French Polynesia</td><td>Nepal</td><td>The Bahamas</td></tr>
+          <tr><td>Albania</td><td>French Southern and Antarctic Lands</td><td>New Caledonia</td><td>Togo</td></tr>
+          <tr><td>Algeria</td><td>Gabon</td><td>Nicaragua</td><td>Tonga</td></tr>
+          <tr><td>American Samoa</td><td>Gambia</td><td>Niger</td><td>Trinidad and Tobago</td></tr>
+          <tr><td>Angola</td><td>Georgia</td><td>Nigeria</td><td>Tunisia</td></tr>
+          <tr><td>Antarctica</td><td>Ghana</td><td>Northern Cyprus</td><td>Turkey</td></tr>
+          <tr><td>Antigua and Barbuda</td><td>Grenada</td><td>Northern Mariana Islands</td><td>Turkmenistan</td></tr>
+          <tr><td>Armenia</td><td>Guam</td><td>North Korea</td><td>Turks and Caicos Islands</td></tr>
+          <tr><td>Ashmore and Cartier Islands</td><td>Guatemala</td><td>Oman</td><td>Tuvalu</td></tr>
+          <tr><td>Azerbaijan</td><td>Guernsey</td><td>Pakistan</td><td>Uganda</td></tr>
+          <tr><td>Bahrain</td><td>Guinea</td><td>Palau</td><td>Ukraine</td></tr>
+          <tr><td>Bajo Nuevo Bank (Petrel Is.)</td><td>Guinea-Bissau</td><td>Palestine</td><td>United Arab Emirates</td></tr>
+          <tr><td>Bangladesh</td><td>Guyana</td><td>Panama</td><td>United Republic of Tanzania</td></tr>
+          <tr><td>Barbados</td><td>Haiti</td><td>Papua New Guinea</td><td>Uruguay</td></tr>
+          <tr><td>Baykonur Cosmodrome</td><td>Honduras</td><td>Paraguay</td><td>Uzbekistan</td></tr>
+          <tr><td>Belarus</td><td>Hungary</td><td>Peru</td><td>Vanuatu</td></tr>
+          <tr><td>Belize</td><td>India</td><td>Philippines</td><td>Venezuela</td></tr>
+          <tr><td>Benin</td><td>Indian Ocean Territories</td><td>Poland</td><td>Vietnam</td></tr>
+          <tr><td>Bhutan</td><td>Indonesia</td><td>Qatar</td><td>Western Sahara</td></tr>
+          <tr><td>Bolivia</td><td>Iran</td><td>Republic of Congo</td><td>Yemen</td></tr>
+          <tr><td>Bosnia and Herzegovina</td><td>Iraq</td><td>Republic of Serbia</td><td>Zambia</td></tr>
+          <tr><td>Botswana</td><td>Isle of Man</td><td>Romania</td><td>Zimbabwe</td></tr>
+          <tr><td>Brunei</td><td>Israel</td><td>Russia</td><td></td></tr>
+          <tr><td>Bulgaria</td><td>Ivory Coast</td><td>Rwanda</td><td></td></tr>
+          <tr><td>Burkina Faso</td><td>Jamaica</td><td>Saint Kitts and Nevis</td><td></td></tr>
+          <tr><td>Burundi</td><td>Jersey</td><td>Saint Lucia</td><td></td></tr>
+          <tr><td>Cambodia</td><td>Jordan</td><td>Saint Vincent and the Grenadines</td><td></td></tr>
+          <tr><td>Cameroon</td><td>Kazakhstan</td><td>Samoa</td><td></td></tr>
+          <tr><td>Cape Verde</td><td>Kenya</td><td>Sao Tome and Principe</td><td></td></tr>
+          <tr><td>Central African Republic</td><td>Kiribati</td><td>Saudi Arabia</td><td></td></tr>
+          <tr><td>Chad</td><td>Kuwait</td><td>Scarborough Reef</td><td></td></tr>
+          <tr><td>Chile</td><td>Kyrgyzstan</td><td>Senegal</td><td></td></tr>
+          <tr><td>Comoros</td><td>Laos</td><td>Serranilla Bank</td><td></td></tr>
+          <tr><td>Costa Rica</td><td>Latvia</td><td>Seychelles</td><td></td></tr>
+          <tr><td>Croatia</td><td>Lebanon</td><td>Siachen Glacier</td><td></td></tr>
+          <tr><td>Cuba</td><td>Lesotho</td><td>Sierra Leone</td><td></td></tr>
+          <tr><td>Cyprus No Mans Area</td><td>Liberia</td><td>Slovakia</td><td></td></tr>
+          <tr><td>Czech Republic</td><td>Libya</td><td>Slovenia</td><td></td></tr>
+          <tr><td>Dem. Republic of the Congo</td><td>Lithuania</td><td>Solomon Islands</td><td></td></tr>
+          <tr><td>Djibouti</td><td>Macao S.A.R.</td><td>Somalia</td><td></td></tr>
+          <tr><td>Dominica</td><td>North Macedonia</td><td>Somaliland</td><td></td></tr>
+          <tr><td>Dominican Republic</td><td>Madagascar</td><td>South Africa</td><td></td></tr>
+          <tr><td>East Timor</td><td>Malawi</td><td>South Georgia and South Sandwich Islands</td><td></td></tr>
+          <tr><td>Ecuador</td><td>Malaysia</td><td>South Sudan</td><td></td></tr>
+          <tr><td>Egypt</td><td>Maldives</td><td>Spratly Islands</td><td></td></tr>
+          <tr><td>El Salvador</td><td>Mali</td><td>Sri Lanka</td><td></td></tr>
+          <tr><td>Equatorial Guinea</td><td>Marshall Islands</td><td>Sudan</td><td></td></tr>
+          <tr><td>Eritrea</td><td>Mauritania</td><td>Suriname</td><td></td></tr>
+          <tr><td>Estonia</td><td>Mauritius</td><td>Eswatini</td><td></td></tr>
+          <tr><td>Ethiopia</td><td>Mexico</td><td>Syria</td><td></td></tr>
+          <tr><td>Falkland Islands</td><td>Moldova</td><td></td><td></td></tr>
+          <tr><td></td><td>Mongolia</td><td></td><td></td></tr>
+          <tr><td></td><td>Morocco</td><td></td><td></td></tr>
+          <tr><td></td><td>Mozambique</td><td></td><td></td></tr>
+          <tr><td></td><td>Myanmar</td><td></td><td></td></tr>
+        </tbody>
+      </table></div>
+      <hr />
+      <p><a href="index.html">← Back to Legal Overview</a></p>
+    </article>
+  </main>
+  <footer>
+    <p>© <span id="year"></span> Gamma Earth. All rights reserved.</p>
+    <p class="footer-meta">Main site: <a href="https://gamma.earth" target="_blank" rel="noopener">gamma.earth</a></p>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
