@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gamma Earth · Documentation · Legal · Privacy Policy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+  <header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html">
+        <img src="../ge_logo.png" alt="Gamma Earth logo" />
+        <span>Gamma&nbsp;Earth&nbsp;Documentation</span>
+      </a>
+    </div>
+  </header>
+  <main id="content">
+    <article class="prose">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="../index.html">Docs Home</a>
+        <span>›</span>
+        <a href="index.html">Legal</a>
+        <span>›</span>
+        Privacy Policy
+      </nav>
+      <h1>Privacy Policy</h1>
+      <p class="note">Version 1.2 — April 2026</p>
+
+      <h2>1. Introduction and Controller Identity</h2>
+      <p>Gamma Earth Sàrl, registered in Switzerland with registered address at Chemin de la Scierie 10, 1162 St-Prex, Switzerland ("Gamma Earth", "we", "us", or "our") operates the web platform available at <a href="https://gamma.earth">gamma.earth</a> (the "Platform"), which includes a user registration portal, an e-commerce store for the purchase of processing credits, and a WebGIS project management interface.</p>
+      <p>Gamma Earth acts as the data controller for personal data collected through the Platform. This Privacy Policy describes what data we collect, how we use it, who we share it with, and the rights you have in relation to your personal data.</p>
+      <p>This Policy applies to users of the Platform and, where relevant, to users accessing Gamma Earth services via API, SDK, or third-party interfaces including Google Colab. It does not apply to third-party websites or services we may link to.</p>
+      <p>Contact: <a href="mailto:info@gamma.earth">info@gamma.earth</a></p>
+
+      <hr />
+
+      <h2>2. Applicable Law</h2>
+      <p>Gamma Earth processes personal data in compliance with:</p>
+      <ul>
+        <li>the Swiss Federal Act on Data Protection (nDSG / LPD), as revised and in force from 1 September 2023;</li>
+        <li>Regulation (EU) 2016/679 (GDPR), to the extent applicable to users located in the European Economic Area or the United Kingdom;</li>
+        <li>any other applicable national data protection laws.</li>
+      </ul>
+      <p>Where the GDPR applies, the legal bases for processing are as set out in Section 4 below.</p>
+
+      <hr />
+
+      <h2>3. Personal Data We Collect</h2>
+
+      <h3>3.1 Account Registration Data</h3>
+      <p>When you create an account on the Platform, we collect: full name; email address; company or organisation name; job title or role; country of residence or operations.</p>
+
+      <h3>3.2 Usage and Technical Data</h3>
+      <p>To operate, bill, and improve the Service, we collect:</p>
+      <ul>
+        <li>Software usage logs, including timestamps, API call records, credit consumption, and data processing volumes;</li>
+        <li>Area of Interest (AOI) data (geographic polygons) and Sentinel-2 acquisition dates submitted for processing — strictly necessary for processing and billing. Users retain ownership of this data (see Section 8);</li>
+        <li>Geolocation data (country or region of access), used to determine the applicable credit-to-km² conversion rate, which varies by region as set out in the Fee Policy;</li>
+        <li>Device and browser technical information (IP address, browser type, operating system) collected automatically when you access the Platform.</li>
+      </ul>
+
+      <h3>3.3 Payment Data</h3>
+      <p>For the purpose of processing payments and issuing invoices, Gamma Earth collects the company legal address and VAT number (where applicable) of the billing entity. Payment card transactions are processed by Stripe, Inc. ("Stripe"). Gamma Earth does not store full payment card details. Stripe may collect and process payment card information directly; please refer to Stripe's Privacy Policy at <a href="https://stripe.com/privacy">https://stripe.com/privacy</a>.</p>
+
+      <h3>3.4 Google Colab Interface</h3>
+      <p>Where you access Gamma Earth services through the Google Colab interface, you will be asked to provide your registered User ID. This identifier is used solely to associate your processing request with your account for authentication and billing. Usage data arising from such sessions is treated in the same manner as Platform usage data described in Section 3.2.</p>
+
+      <h3>3.5 Communications Data</h3>
+      <p>If you contact us by email or through the Platform, we retain a record of that communication, including your contact details and message content, for the purpose of handling your enquiry and for our records.</p>
+
+      <hr />
+
+      <h2>4. Purposes of Processing and Legal Bases</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Purpose</th><th>Data Used</th><th>Legal Basis (GDPR)</th></tr></thead>
+          <tbody>
+            <tr><td>Account creation and authentication</td><td>Name, email, country, company, title</td><td>Performance of a contract (Art. 6(1)(b))</td></tr>
+            <tr><td>Providing the Service and processing requests</td><td>Usage logs, AOI data, User ID</td><td>Performance of a contract (Art. 6(1)(b))</td></tr>
+            <tr><td>Credit accounting and billing</td><td>Usage logs, credit balance, geolocation, company legal address, VAT number, payment data via Stripe</td><td>Performance of a contract (Art. 6(1)(b))</td></tr>
+            <tr><td>Regional pricing determination</td><td>Geolocation (country/region)</td><td>Performance of a contract (Art. 6(1)(b))</td></tr>
+            <tr><td>Platform analytics and service improvement</td><td>Aggregated/anonymised usage data</td><td>Legitimate interests (Art. 6(1)(f))</td></tr>
+            <tr><td>CRM and commercial relationship management</td><td>Name, email, company, title, country</td><td>Legitimate interests (Art. 6(1)(f))</td></tr>
+            <tr><td>Compliance with legal obligations</td><td>As required by applicable law</td><td>Legal obligation (Art. 6(1)(c))</td></tr>
+            <tr><td>Responding to enquiries and support</td><td>Communications data</td><td>Legitimate interests (Art. 6(1)(f))</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr />
+
+      <h2>5. Third-Party Service Providers and Sub-Processors</h2>
+      <p>Gamma Earth engages the following third-party sub-processors. All sub-processors are bound by data processing agreements and required to handle personal data in accordance with applicable law.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Provider</th><th>Role</th><th>Data Processed</th><th>Location</th></tr></thead>
+          <tbody>
+            <tr><td>Google Cloud Platform</td><td>Infrastructure hosting and storage</td><td>All Platform data</td><td>EU (europe-west-1, Belgium)</td></tr>
+            <tr><td>Stripe, Inc.</td><td>Payment processing</td><td>Payment data</td><td>USA (SCCs in place)</td></tr>
+            <tr><td>HubSpot, Inc.</td><td>CRM</td><td>Name, email, company, title, country</td><td>USA (SCCs in place)</td></tr>
+            <tr><td>Google Looker Studio</td><td>Internal analytics</td><td>Aggregated/anonymised usage data</td><td>USA (SCCs in place)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>"SCCs" refers to Standard Contractual Clauses adopted by the European Commission pursuant to Article 46 GDPR. Gamma Earth does not sell personal data to third parties, and does not permit sub-processors to use personal data for their own independent purposes.</p>
+
+      <hr />
+
+      <h2>6. International Data Transfers</h2>
+      <p>Personal data is primarily hosted on Google Cloud Platform infrastructure located in the EU (Belgium, europe-west-1 region). Where data is transferred outside the EEA or Switzerland — including to Stripe and HubSpot in the United States — such transfers are subject to appropriate safeguards, including Standard Contractual Clauses or equivalent mechanisms recognised under Swiss data protection law.</p>
+
+      <hr />
+
+      <h2>7. Data Retention</h2>
+      <ul>
+        <li><strong>Account data:</strong> for the duration of the active account, plus a further period as required for legal, tax, and compliance purposes (typically up to 10 years under Swiss law);</li>
+        <li><strong>Usage logs and billing records:</strong> retained for a minimum of 10 years in compliance with Swiss accounting and tax obligations;</li>
+        <li><strong>AOI and project data:</strong> retained for the duration of the account. Upon account closure, active project data is retained for 30 days to allow export, then permanently deleted. Anonymised aggregated usage data may be retained indefinitely;</li>
+        <li><strong>Communications:</strong> retained for as long as reasonably necessary to handle the relevant enquiry.</li>
+        <li>Anonymised or aggregated data that cannot be used to identify individuals is not subject to these retention periods.</li>
+      </ul>
+
+      <hr />
+
+      <h2>8. Ownership of User Input Data</h2>
+      <p>Users retain full ownership of the input data they submit to the Platform, including AOI definitions and Sentinel-2 acquisition dates. By submitting such data, users grant Gamma Earth a limited, non-exclusive, royalty-free licence to process that data solely for the purpose of delivering the requested service and for billing.</p>
+      <p>Gamma Earth may use anonymised, aggregated usage data that cannot be linked to any individual user or organisation to improve its services, develop new features, and for internal analytics. Such use does not require further consent.</p>
+
+      <hr />
+
+      <h2>9. Cookies and Tracking Technologies</h2>
+      <p>The Platform uses cookies and similar tracking technologies. Categories of cookies used may include:</p>
+      <ul>
+        <li><strong>Strictly necessary cookies:</strong> required for the Platform to function (e.g., session authentication, security tokens). These cannot be disabled.</li>
+        <li><strong>Analytics cookies:</strong> used to understand how users interact with the Platform.</li>
+        <li><strong>Functional cookies:</strong> used to remember your preferences and settings.</li>
+        <li><strong>Marketing and targeting cookies:</strong> may be used in connection with Gamma Earth's commercial communications and campaigns.</li>
+      </ul>
+      <p>Upon accessing the Platform, you will be presented with a cookie consent notice allowing you to accept or decline non-essential cookie categories. You may update your preferences at any time through the Platform settings.</p>
+
+      <hr />
+
+      <h2>10. Your Data Protection Rights</h2>
+      <p>Subject to applicable law, you have the following rights in relation to your personal data: right of access; right to rectification; right to erasure; right to restriction of processing; right to data portability; right to object to processing based on legitimate interests. Gamma Earth does not make solely automated decisions that produce significant legal effects on users.</p>
+      <p>To exercise any of these rights, please contact us at <a href="mailto:info@gamma.earth">info@gamma.earth</a>. We will respond within 30 days.</p>
+      <p>You also have the right to lodge a complaint with the competent supervisory authority. In Switzerland: the Federal Data Protection and Information Commissioner (FDPIC) at <a href="https://www.edoeb.admin.ch" target="_blank" rel="noopener">www.edoeb.admin.ch</a>. EEA residents may also contact the data protection authority in their country of residence.</p>
+
+      <hr />
+
+      <h2>11. Data Security</h2>
+      <p>Gamma Earth implements appropriate technical and organisational measures to protect personal data against unauthorised access, loss, alteration, or disclosure. Measures include access controls, encryption in transit, and infrastructure hosted within certified cloud environments.</p>
+      <p>In the event of a personal data breach likely to result in a risk to your rights and freedoms, we will notify the competent authority and, where required, affected individuals in accordance with applicable law.</p>
+
+      <hr />
+
+      <h2>12. Minors</h2>
+      <p>The Platform is intended for use by businesses, governmental entities, academic institutions, and professional users. We do not knowingly collect personal data from individuals under the age of 18.</p>
+
+      <hr />
+
+      <h2>13. Changes to This Policy</h2>
+      <p>Gamma Earth may update this Privacy Policy from time to time. Material changes will be communicated to registered users by email and/or by a notice on the Platform. The date of the latest revision is indicated at the top of this document. Continued use of the Platform following notification of changes constitutes acceptance of the updated Policy.</p>
+
+      <hr />
+
+      <h2>14. Contact</h2>
+      <p>For any questions, requests, or complaints relating to this Privacy Policy:<br>
+      <strong>Gamma Earth Sàrl</strong><br>
+      Chemin de la Scierie 10, 1162 St-Prex, Switzerland<br>
+      Email: <a href="mailto:info@gamma.earth">info@gamma.earth</a><br>
+      Website: <a href="https://gamma.earth">www.gamma.earth</a></p>
+      <hr />
+      <p><a href="index.html">← Back to Legal Overview</a></p>
+    </article>
+  </main>
+  <footer>
+    <p>© <span id="year"></span> Gamma Earth. All rights reserved.</p>
+    <p class="footer-meta">Main site: <a href="https://gamma.earth" target="_blank" rel="noopener">gamma.earth</a></p>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
