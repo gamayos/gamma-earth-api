@@ -31,7 +31,7 @@
       <p class="note">Version 1.0 — May 2026</p>
 
       <p>These Terms of Service ("Terms") govern your access to and use of the web platform operated by Gamma Earth Sàrl, Chemin de la Scierie 10, 1162 St-Prex, Switzerland ("Gamma Earth", "we", "us") at <a href="https://gamma.earth">gamma.earth</a> (the "Platform"). By registering for an account or using the Platform, you agree to be bound by these Terms.</p>
-      <p>The Platform currently provides a user registration portal and user dashboard. Additional features — including an e-commerce store for the purchase of processing credits, plan management, and a WebGIS project management interface — are under development and will be made available in future releases. These Terms will be updated accordingly and Users will be notified in advance of any material changes.</p>
+      <p>The Platform currently provides a user registration portal and user dashboard.</p>
       <p>These Terms apply in addition to, and do not replace, the Gamma Earth <a href="license-agreement.html">License Agreement</a>, which separately governs the rights to access and use the S2DR3 and S2DR4 software and services. For Users accessing the software via API or SDK, the License Agreement and the applicable Fee Policy in force at the time of their subscription continue to govern those commercial relationships.</p>
       <p>These Terms are intended for business users, governmental entities, and academic institutions. Where mandatory consumer protection laws apply in your jurisdiction, nothing in these Terms affects your statutory rights.</p>
 
@@ -42,7 +42,7 @@
       <ul>
         <li><strong>"Account"</strong> means the registered user account created on the Platform.</li>
         <li><strong>"Platform"</strong> means the web-based interface at gamma.earth, currently comprising the user registration portal and user dashboard.</li>
-        <li><strong>"Secret Key"</strong> means the unique credential issued by Gamma Earth to registered Users for the purpose of authenticating processing requests submitted via the Google Colab interface.</li>
+        <li><strong>"API Key"</strong> means the unique credential issued by Gamma Earth to registered Users upon Account creation, used to authenticate processing requests across all Gamma Earth interfaces, including Google Colab, API, and SDK.</li>
         <li><strong>"Services"</strong> means the S2DR3 and S2DR4 super-resolution processing services made available by Gamma Earth via Google Colab, API, or SDK.</li>
         <li><strong>"User"</strong> means any individual who registers for an Account on behalf of themselves or their organisation. For the purposes of the License Agreement, the User is the Licensee. The terms User and Licensee are interchangeable and refer to the same person or entity.</li>
       </ul>
@@ -85,26 +85,28 @@
 
       <hr />
 
-      <h2>5. Google Colab Interface and Secret Key</h2>
+      <h2>5. Google Colab Interface and API Key</h2>
 
       <h3>5.1 Transition to Registered Access</h3>
       <p>Gamma Earth is transitioning the Google Colab interface from anonymous access to registered access. Existing Google Colab users are invited to register for an Account on the Platform within thirty (30) days of the date they are notified by Gamma Earth.</p>
 
-      <h3>5.2 Secret Key</h3>
-      <p>Upon registration, Gamma Earth will issue each User a Secret Key. The Secret Key must be inputted into the Google Colab interface to authenticate processing requests. It is personal to the User and must not be shared with or disclosed to any third party.</p>
-      <p>The User is responsible for keeping the Secret Key confidential. If the User becomes aware of any actual or suspected unauthorised use of their Secret Key, they must notify Gamma Earth immediately at <a href="mailto:info@gamma.earth">info@gamma.earth</a>. Gamma Earth reserves the right to revoke and reissue Secret Keys at any time.</p>
+      <h3>5.2 API Key</h3>
+      <p>Upon registration, Gamma Earth will issue each User an API Key. For new users, the API Key is the single credential used to authenticate processing requests across all Gamma Earth interfaces — Google Colab, API, and SDK. It is personal to the User and must not be shared with or disclosed to any third party.</p>
+      <p>The User is responsible for keeping the API Key confidential. If the User becomes aware of any actual or suspected unauthorised use of their API Key, they must notify Gamma Earth immediately at <a href="mailto:info@gamma.earth">info@gamma.earth</a>. Gamma Earth reserves the right to revoke and reissue API Keys at any time.</p>
+      <p>Existing API and SDK users who register during this transition period will receive a new API Key. Their existing credentials remain valid until migration is completed, as described in Section 6.</p>
 
       <h3>5.3 Google Colab Remains Free</h3>
-      <p>Registration and use of the Google Colab interface does not alter the free and limited nature of the Google Colab service. No payment is required to use Google Colab via the Platform. The processing limitations applicable to the Google Colab interface remain in force and are communicated separately by Gamma Earth.</p>
+      <p>Registration and use of the Google Colab interface via API Key does not alter the free and limited nature of the Google Colab service. No payment is required to use Google Colab via the Platform. The processing limitations applicable to the Google Colab interface remain in force and are communicated separately by Gamma Earth.</p>
 
       <h3>5.4 Google Colab Third-Party Terms</h3>
       <p>Use of the Google Colab interface is subject to Google's own terms of service in addition to these Terms and the License Agreement. Gamma Earth is not responsible for any interruption, modification, or discontinuation of the Google Colab service.</p>
 
       <hr />
 
-      <h2>6. API and SDK Users</h2>
-      <p>Users accessing the Services via API or SDK are subject to the License Agreement and the Fee Policy applicable at the time of their subscription. These commercial terms remain in force and are not modified by these Terms. Gamma Earth will communicate separately the timeline and conditions for any migration to updated commercial terms, and will provide reasonable advance notice before any such transition takes effect.</p>
-      <p>Existing API and SDK users are encouraged to register for an Account on the Platform at their earliest convenience. Registration does not alter any existing commercial terms or processing entitlements.</p>
+      <h2>6. API and SDK Users — Transition</h2>
+      <p>Users accessing the Services via API or SDK are subject to the License Agreement and the Fee Policy applicable at the time of their subscription. These commercial terms remain in force and are not modified by these Terms.</p>
+      <p>Existing API and SDK users who register on the Platform will receive a new API Key. Their existing credentials continue to operate in parallel until migration to the new API Key is completed. Gamma Earth will communicate the migration timeline and conditions separately, and will provide reasonable advance notice before existing credentials are retired.</p>
+      <p>Registration on the Platform does not alter any existing commercial terms or processing entitlements.</p>
 
       <hr />
 
@@ -135,7 +137,7 @@
       <hr />
 
       <h2>9. Platform Availability and Modifications</h2>
-      <p>Gamma Earth aims to make the Platform available on a continuous basis but does not warrant any minimum uptime or availability. Gamma Earth may at any time modify, update, suspend, or discontinue any feature of the Platform, with reasonable advance notice where possible. In particular, Gamma Earth intends to introduce new features and updated commercial terms in future releases, and will notify Users in advance of material changes to these Terms.</p>
+      <p>Gamma Earth aims to make the Platform available on a continuous basis but does not warrant any minimum uptime or availability. Gamma Earth may at any time modify, update, suspend, or discontinue any feature of the Platform, with reasonable advance notice where possible.</p>
 
       <hr />
 
