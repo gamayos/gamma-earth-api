@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Gamma Earth — S2DR3 Demo</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <link rel="apple-touch-icon" sizes="180x180" href="https://storage.googleapis.com/0x7ff601307fa2/ge-logo-20230616-180-1.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="https://storage.googleapis.com/0x7ff601307fa2/ge-logo-20230616-32-1.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="https://storage.googleapis.com/0x7ff601307fa2/ge-logo-20230616-16-1.png" />
+    <link href='https://fonts.googleapis.com/css?family=Barlow:300,400,500,600&display=swap' rel='stylesheet' type='text/css'>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #0A0E14;
+            font-family: 'Barlow', sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* ── Header ── */
+        #header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 52px;
+            background: #0A0E14;
+            border-bottom: 1px solid #1B3048;
+            display: flex;
+            align-items: center;
+            z-index: 10;
+        }
+
+        #logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 20px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        #logo img {
+            height: 28px;
+            display: block;
+        }
+
+        #logo-divider {
+            width: 1px;
+            height: 22px;
+            background: #1B3048;
+            flex-shrink: 0;
+        }
+
+        #product-label {
+            padding: 0 20px;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            color: #56A3EB;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        #menu {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding: 0 8px;
+            flex: 1;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        #menu::-webkit-scrollbar {
+            display: none;
+        }
+
+        #menu a {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-family: 'Barlow', sans-serif;
+            font-weight: 400;
+            font-size: 14px;
+            color: #92C3E7;
+            letter-spacing: 0.01em;
+            white-space: nowrap;
+            transition: background 0.15s, color 0.15s;
+            border: 1px solid transparent;
+        }
+
+        #menu a:hover {
+            color: #fff;
+            background: #121B2A;
+        }
+
+        #menu a.active {
+            color: #fff;
+            background: #162638;
+            border-color: #56A3EB;
+        }
+
+        #gamma-link {
+            display: flex;
+            align-items: center;
+            padding: 0 18px;
+            text-decoration: none;
+            color: #92C3E7;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            gap: 6px;
+            flex-shrink: 0;
+            transition: color 0.15s;
+        }
+
+        #gamma-link:hover {
+            color: #fff;
+        }
+
+        #gamma-link svg {
+            opacity: 0.6;
+        }
+
+        #gamma-link:hover svg {
+            opacity: 1;
+        }
+
+        /* ── iframe ── */
+        #demo-container {
+            position: absolute;
+            top: 52px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        #demo-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header">
+    <a id="logo" href="https://gamma.earth" target="_blank">
+        <img src="https://storage.googleapis.com/0x7ff601307fa2/ge-logo-20230616-180-1.png" alt="Gamma Earth" />
+    </a>
+    <div id="logo-divider"></div>
+    <div id="product-label">S2DR3</div>
+    <nav id="menu"></nav>
+    <a id="gamma-link" href="https://gamma.earth" target="_blank">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="7" cy="7" r="6" stroke="#92C3E7" stroke-width="1.2"/>
+            <ellipse cx="7" cy="7" rx="2.5" ry="6" stroke="#92C3E7" stroke-width="1.2"/>
+            <line x1="1" y1="7" x2="13" y2="7" stroke="#92C3E7" stroke-width="1.2"/>
+        </svg>
+        gamma.earth
+    </a>
+</div>
+
+<div id="demo-container"></div>
+
+<script>
+    const datasets = {
+        "FR-T31TFN-2a8ff23f4-20260528": {
+            title: "Agriculture, France",
+            zoom: 13.9,
+            center: [47.40939, 5.54795]  // [lat, lng]
+        }
+    };
+
+    let loaded = false;
+
+    const menu = document.getElementById('menu');
+    const container = document.getElementById('demo-container');
+
+    function loadDataset(id) {
+        const ds = datasets[id];
+        const hash = `${ds.zoom}/${ds.center[0]}/${ds.center[1]}`;
+        container.innerHTML = `<iframe src="s2dr3-demo-20250305.html?ds=${id}#${hash}" allowfullscreen></iframe>`;
+    }
+
+    for (const [id, ds] of Object.entries(datasets)) {
+        const link = document.createElement('a');
+        link.id = 'ds-' + id;
+        link.href = '#';
+        link.textContent = ds.title;
+
+        if (!loaded) {
+            link.className = 'active';
+            loadDataset(id);
+            loaded = true;
+        }
+
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.querySelectorAll('#menu a').forEach(a => a.classList.remove('active'));
+            this.classList.add('active');
+            loadDataset(id);
+        });
+
+        menu.appendChild(link);
+    }
+</script>
+
+</body>
+</html>
