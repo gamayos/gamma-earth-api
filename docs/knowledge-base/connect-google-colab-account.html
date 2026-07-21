@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gamma Earth &gt; Documentation &gt; Connect Your Account to Google Colab</title>
+<meta name="meta-description" content="How to connect your Gamma Earth account to Google Colab.">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<header>
+  <div class="header-inner">
+    <a class="brand" href="../index.html">
+      <img src="../ge_logo.png" alt="Gamma Earth logo">
+      <span>Gamma Earth Documentation</span>
+    </a>
+  </div>
+</header>
+
+<main id="content">
+  <div class="prose">
+    <nav aria-label="Breadcrumb">
+      <a href="../index.html">Docs Home</a> › <a href="index.html">Knowledge Base</a> › Connect Google Colab
+    </nav>
+
+    <h1>Connect Your Gamma Earth Account to Google Colab</h1>
+    <p><em>Last update: 21 July 2026</em></p>
+
+    <p>Starting <strong>22 July 2026</strong>, Gamma Earth is introducing user accounts for Google Colab. Until <strong>1 September 2026</strong>, you can keep using Gamma Earth through Google Colab as usual — no action needed.</p>
+
+    <p>After <strong>1 September 2026</strong>, only registered users who have added their Gamma Earth API key to Google Colab will be able to process data through our services. To keep using Gamma Earth after that date, complete the steps below.</p>
+
+    <h2>1. Create your Gamma Earth account</h2>
+    <p>Go to <a href="https://app.gamma.earth/register?invite=google-colab">app.gamma.earth/register?invite=google-colab</a> and register using your preferred sign-in method.</p>
+
+    <h2>2. Copy your API key</h2>
+    <p>After creating your account, open the <a href="https://app.gamma.earth/dashboard"><strong>API Access &amp; Keys</strong></a> page and copy your API key.</p>
+    <p><img src="colab-api-keys.png" alt="API Access and Keys page in the Gamma Earth dashboard, with the copy icon next to the API key highlighted" style="max-width:100%; border-radius:14px; border:1px solid var(--border);"></p>
+    <p>Keep your API key private — do not share it with anyone.</p>
+
+    <h2>3. Add the API key to Google Colab</h2>
+    <p>Open your Gamma Earth notebook in Google Colab and go to the <strong>Secrets</strong> panel. Create a new secret named:</p>
+    <p><code>GE_API_KEY</code></p>
+    <p><img src="colab-secrets-empty.png" alt="Google Colab Secrets panel with the Add new secret option highlighted" style="max-width:100%; border-radius:14px; border:1px solid var(--border);"></p>
+    <p>Paste your Gamma Earth API key into the <strong>Value</strong> field, then enable notebook access for the secret.</p>
+    <p><img src="colab-secrets-enabled.png" alt="Google Colab Secrets panel showing the GE_API_KEY secret with notebook access enabled" style="max-width:100%; border-radius:14px; border:1px solid var(--border);"></p>
+
+    <p>Once this is done, you can continue using Gamma Earth through Google Colab as before.</p>
+
+    <p class="note">For any questions or assistance, contact us at <a href="mailto:support@gamma.earth">support@gamma.earth</a>.</p>
+  </div>
+</main>
+
+<footer>
+  © Gamma Earth. All rights reserved.<br>
+  Main site: <a href="https://gamma.earth">gamma.earth</a>
+</footer>
+
+</body>
+</html>
