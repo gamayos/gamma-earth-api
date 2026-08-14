@@ -1,3 +1,28 @@
+/* Self-hosted Roboto — replaces fonts.googleapis.com to avoid transmitting
+   reader IP addresses to Google without consent (GDPR Art. 6/13, Chapter V).
+   Font files sit in fonts/ alongside this stylesheet. */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/roboto-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('fonts/roboto-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('fonts/roboto-700.woff2') format('woff2');
+}
+
 /* style.css */
 :root {
   --bg: #23213a;         /* dull blue background */
