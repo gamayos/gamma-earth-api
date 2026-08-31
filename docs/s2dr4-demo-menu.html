@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Gamma Earth - S2DR4 Deep Resolution Demo</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<!--    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.51.0/mapbox-gl.js'></script> -->
+<!--    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.51.0/mapbox-gl.css' rel='stylesheet' /> -->
+	<link rel="apple-touch-icon" sizes="180x180" href="https://storage.googleapis.com/0x7ff601307fa2/ge-logo-20230616-180-1.png" />
+	<link rel="icon" type="image/png" sizes="32x32" href="https://storage.googleapis.com/0x7ff601307fa2/ge-logo-20230616-32-1.png" />
+	<link rel="icon" type="image/png" sizes="16x16" href="https://storage.googleapis.com/0x7ff601307fa2/ge-logo-20230616-16-1.png" />
+	<link href='https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900italic,900' rel='stylesheet' type='text/css'>
+	<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+
+<style>
+    body {
+        overflow: hidden;
+		margin:0; 
+		padding:0; 
+		background: #111!important;
+    }
+
+    body * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+	/*
+    .map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+    }
+	*/
+	iframe {
+		position: absolute;
+		top: 62px;
+		width: 100%;
+		height: calc(100% - 62px);
+		/*border: 0;*/
+		z-index: 0;
+		border-color: rgb(180,180,180);
+		border-width: 1px 0 0 0;
+		/*margin: 62px 0 0 0;*/
+	}
+	
+	#logo {
+	    font-family: Arial;
+	    font-weight: 400;
+	    font-style: normal;
+		color: rgb(158,169,255);
+		text-decoration: none;
+		font-size: 24px;
+		top: 5px;
+		right: 50px;
+		position: absolute;
+	}
+	
+	#logo:hover {
+		color: rgb(255,255,255);
+	}
+	
+	#menu {
+		position: absolute;
+		top: 0;
+		left: 20px;
+		height: 62px;
+		/*background: #3074a4;*/
+		/*width: 100%;*/
+	}
+	
+	#menu a {
+		float:left;
+		position: relative;
+	    padding: 0 10px;
+	    top: 20px;
+	    border-color: rgb(0,0,0);
+	    font-family: Roboto;
+	    font-weight: 400;
+	    font-style: normal;
+		text-decoration: none;
+	    color: rgb(200,200,200);
+	    font-size: 18px;
+	    letter-spacing: 0px;
+	}
+	
+	#menu a.active {
+		/*color: rgb(158,255,169);*/
+		color: #70c4ff;
+	}
+	
+	#menu a:hover {
+		color: #ffffff;
+	}
+	
+</style>
+
+<div id="menu"></div>
+<div id="logo"><img src="ge_logo.png" style="height: 50px"></div>
+<div id="demo-container"></div>
+
+<script>
+	datasets = {
+		//"AU-T52JFS-20220210-u92157bc": { title: "AU/Uluru", center: [131.02749,-25.35108] },
+		"US-T11SLT-20220304-ua3566d2": { title: "US/LA", center: [-118.2897,33.8153] },
+		"BR-T22KGB-20200822-u950bf4f": { title: "BR/Bonfim", center: [-48.24921,-21.42953] },
+		"BR-T22MHD-20210808-u6e95604": { title: "BR/Caraparu", center: [-48.1596,-1.3891] },
+		"CH-T31TGM-20180801-u3a90160": { title: "CH/Geneva", center: [6.06273,46.213763] },
+		"ES-T30SVH-20190812-uc28e47e": { title: "ES/Ubeda", center: [-3.24,37.9901] },
+		"ES-T30TXK-20211104-ue3e1509": { title: "ES/Teruel", center: [-1.21463,40.41936] },
+	}
+	loaded = false;
+	for (const ds of Object.keys(datasets)) {
+		if (!ds.includes("__")) {
+			//console.log(ds)
+		
+			// Create a link.
+			const link = document.createElement('a');
+			link.id = ds;
+			link.href = '#';
+			link.textContent = datasets[ds]['title'];
+		
+			if (!loaded) {
+				params = ds + '#15/' + datasets[ds]['center'][1] + '/' + datasets[ds]['center'][0]
+				$("#demo-container").append("<iframe src='s2dr4-demo-20260831.html?ds=" + params + "' />");
+				link.className = 'active';
+				loaded = true;
+			} else {
+				link.className = '';
+			}
+		
+			link.onclick = function (e) {
+			
+				this.className = 'active';
+				$("#demo-container").empty();
+				params = this.id + '#15/' + datasets[this.id]['center'][1] + '/' + datasets[this.id]['center'][0]
+				$("#demo-container").append("<iframe src='s2dr4-demo-20260831.html?ds=" + params + "' />");
+			
+				e.preventDefault();
+				e.stopPropagation();
+			
+				for (const d of Object.keys(datasets)) {
+					if (!d.includes("__") & d != this.id) {
+						document.getElementById(d).className = '';
+					}
+				}
+			};
+		
+			const menu = document.getElementById('menu');
+			menu.appendChild(link);
+		}
+	}
+	
+</script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PB0RTR8GJZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-PB0RTR8GJZ');
+</script>
+
+</body>
+</html>
