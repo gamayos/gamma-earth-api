@@ -52,7 +52,10 @@
 	.menu {
 		background: #fff;
 		position: absolute;
-		z-index: 1;
+		/* mapbox-gl-compare's slider is also z-index 1, and the plugin appends it to
+		   #comparison-container, which follows both navs in the DOM — so on a tie it painted
+		   over the buttons. 2 keeps the panels above the slider and its drag handle. */
+		z-index: 2;
 		top: 10px;
 		border-radius: 3px;
 		width: 120px;
@@ -97,7 +100,72 @@
 	.menu a.active:hover {
 		background: #3074a4;
 	}
-	
+
+	/* The legend sits after the last link, so :last-child no longer matches it. Drop the
+	   trailing border here instead, and let the legend supply the separator when shown. */
+	.menu a:last-of-type {
+		border-bottom: none;
+	}
+
+	/* Confidence legend: hidden until the Confidence layer is toggled on. */
+	#conf-legend {
+		display: none;
+		padding: 10px;
+		font-family: 'Open Sans', sans-serif;
+		font-size: 11px;
+		color: #404040;
+	}
+
+	#conf-legend.visible {
+		display: block;
+		border-top: 1px solid rgba(0, 0, 0, 0.25);
+	}
+
+	.conf-legend-head {
+		display: flex;
+		justify-content: space-between;
+		font-size: 9px;
+		letter-spacing: 0.03em;
+		color: #8a8a8a;
+		padding-bottom: 3px;
+		margin-bottom: 5px;
+		border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+	}
+
+	.conf-legend-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 3px;
+	}
+
+	.conf-legend-row:last-child {
+		margin-bottom: 0;
+	}
+
+	/* Swatch colour is injected per row as --c. The two 45deg gradients under it are the
+	   transparency checkerboard, so a fading swatch reads the same way it does on the map:
+	   high confidence lets the SR image below the overlay show through. */
+	.conf-legend-sw {
+		width: 48px;
+		height: 13px;
+		border: 1px solid rgba(0, 0, 0, 0.3);
+		border-radius: 2px;
+		background-image:
+			linear-gradient(var(--c), var(--c)),
+			linear-gradient(45deg, rgba(0,0,0,0.13) 25%, transparent 25%,
+				transparent 75%, rgba(0,0,0,0.13) 75%),
+			linear-gradient(45deg, rgba(0,0,0,0.13) 25%, #fff 25%,
+				#fff 75%, rgba(0,0,0,0.13) 75%);
+		background-size: 100% 100%, 8px 8px, 8px 8px;
+		background-position: 0 0, 0 0, 4px 4px;
+	}
+
+	.conf-legend-lb {
+		font-variant-numeric: tabular-nums;
+		line-height: 1;
+	}
+
 </style>
 
 <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
@@ -126,9 +194,25 @@
 	
 	pid = ds[1] + "-" + ds[2] + "-" + ds[3]
 	filename = 'ds085422/20230101_085422_68_2458_3B_AnalyticMS_TOAR_8b_center'
-	root = 'https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad'
-    root += '/{z}/{x}/{y}@2x?url=s3://gamma.public/' + filename;
-    tif = '.tif&render=rgb&disable_cache=true'
+	tileBase = 'https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad'
+	root = tileBase + '/{z}/{x}/{y}@2x?url=s3://gamma.public/' + filename;
+	// resampling/reproject pin nearest-neighbour server-side. TiTiler 0.18.5 already defaults
+	// both to nearest, so this is belt-and-braces against a future default change; the visible
+	// smoothing comes from Mapbox's raster-resampling paint property, set on each layer below.
+	nn = '&resampling=nearest&reproject=nearest'
+    tif = '.tif&render=rgb' + nn + '&disable_cache=true'
+
+	// Confidence overlay is a 4-channel RGBA COG. Band 4 is tagged ColorInterp.alpha, so by
+	// default rio-tiler pulls it out as a boolean dataset mask and the PNG alpha collapses to
+	// 0/255. Requesting it as a fourth *data* band with return_mask=false keeps it continuous.
+	// The .png extension is required: with return_mask=false the mask is all-valid, so the
+	// server's format auto-selection would otherwise hand back JPEG, which has no alpha at all.
+	confRoot = tileBase + '/{z}/{x}/{y}@2x.png?url=s3://gamma.public/' + filename;
+	// No rescale: band 4 already carries the spec'd alpha, 255 * (1 - confidence/100), so a
+	// mostly-transparent overlay is the correct result — it means the SR output is mostly
+	// high-confidence. Stretching it would overstate low confidence.
+	confTif = '.tif&bidx=1&bidx=2&bidx=3&bidx=4&return_mask=false'
+	        + nn + '&disable_cache=true'
 	console.log(root, pid, tif)
 	
 	mapStyle1 = {
@@ -147,11 +231,18 @@
 					root + '_lq_rgb8' + tif
 				],
 	          	"tileSize": 256,
+	        },
+	        sdconf: {
+	          	"type": 'raster',
+			  	"tiles": [
+					confRoot + '_conf_overlay' + confTif
+				],
+	          	"tileSize": 256,
 	        }
 	    },
 	    "layers": [
 	        {
-	            "id": 'S2 RGB',
+	            "id": 'SD RGB',
 	            "source": 's2',
 	            "type": 'raster',
 	            "minzoom": 0,
@@ -161,11 +252,28 @@
 				        }
 	        },
 			{
-	            "id": 'S2 NDVI',
+	            "id": 'SD NDVI',
 	            "source": 's2ndvi',
 	            "type": 'raster',
 	            "minzoom": 0,
-	            "maxzoom": 19
+	            "maxzoom": 19,
+				"paint": {
+					'raster-resampling': 'nearest'
+				}
+	        },
+			// Drawn last so it sits on top of the LQ layers. Hidden until toggled.
+	        {
+	            "id": 'Confidence',
+	            "source": 'sdconf',
+	            "type": 'raster',
+	            "minzoom": 0,
+	            "maxzoom": 19,
+				"layout": {
+					"visibility": 'none'
+				},
+				"paint": {
+					'raster-resampling': 'nearest'
+				}
 	        }
 	    ]
 	}
@@ -186,39 +294,27 @@
 				root + '_sr_rgb8' + tif
 			  ],
 	          "tileSize": 256
-	        },
-	        "s2dr3conf": {
-	          "type": 'raster',
-			  "tiles": [
-				root + '_conf_overlay' + tif
-			  ],
-	          "tileSize": 256
 	        }
 	    },
 	    "layers": [
 	        {
-	            "id": 'S2 RGB',
+	            "id": 'SD RGB',
 	            "source": 's2dr3',
 	            "type": 'raster',
 	            "minzoom": 0,
 	            "maxzoom": 19,
+				"paint": {
+					'raster-resampling': 'nearest'
+				}
 	        },
 	        {
-	            "id": 'S2 NDVI',
+	            "id": 'SD NDVI',
 	            "source": 's2dr3ndvi',
 	            "type": 'raster',
 	            "minzoom": 0,
-	            "maxzoom": 19
-	        },
-			// Drawn last so it sits on top of the super-resolution layers. Hidden until toggled.
-	        {
-	            "id": 'Confidence',
-	            "source": 's2dr3conf',
-	            "type": 'raster',
-	            "minzoom": 0,
 	            "maxzoom": 19,
-				"layout": {
-					"visibility": 'none'
+				"paint": {
+					'raster-resampling': 'nearest'
 				}
 	        }
 	    ]
@@ -265,11 +361,11 @@
 	beforeMap.on('load', () => {
 		
 		// If these two layers were not added to the map, abort
-		if (!beforeMap.getLayer('S2 RGB')) { //} || !beforeMap.getLayer('Mapbox') || !beforeMap.getLayer('ESRI')) {
+		if (!beforeMap.getLayer('SD RGB')) { //} || !beforeMap.getLayer('Mapbox') || !beforeMap.getLayer('ESRI')) {
 			return;
 		}
 		
-		toggleableLayerIds = ['S2 RGB','S2 NDVI']
+		toggleableLayerIds = ['SD RGB','SD NDVI']
 		attribution = "© ESA "
 		attribution += "| © Gamma Earth"
 		
@@ -323,12 +419,12 @@
 		}
 	
 		
-		beforeMap.setLayoutProperty('S2 RGB', 'visibility', 'visible');
-		afterMap.setLayoutProperty('S2 RGB', 'visibility', 'visible');
-		document.getElementById('S2 RGB').className = 'active';
+		beforeMap.setLayoutProperty('SD RGB', 'visibility', 'visible');
+		afterMap.setLayoutProperty('SD RGB', 'visibility', 'visible');
+		document.getElementById('SD RGB').className = 'active';
 		
 		// Create a link.
-		id = 'S2DR4'
+		id = 'SRSD'
 		const link = document.createElement('a');
 		link.id = id;
 		link.href = '#';
@@ -337,23 +433,56 @@
 		const layerR = document.getElementById('menuR');
 		layerR.appendChild(link);
 
-		// Confidence overlay: independent on/off toggle, drawn over the super-resolution layers.
+		// Confidence overlay: independent on/off toggle. The button lives in the right panel,
+		// but the overlay itself is drawn over the LQ layers on beforeMap.
 		const confLink = document.createElement('a');
 		confLink.id = 'Confidence';
 		confLink.href = '#';
 		confLink.textContent = 'Confidence';
 		confLink.className = '';
 
+		// render_confidence_overlay() sampled every 10%: [label, r, g, b, a]. Hue is matplotlib
+		// Spectral, alpha is 255 * (1 - confidence/100). Ordered 0 -> 100 top to bottom, matching
+		// the reference legend. Regenerate these rows if the overlay's colormap changes.
+		const CONF_STOPS = [
+			[  0, 158,   1,  66, 255],
+			[ 10, 213,  62,  79, 230],
+			[ 20, 244, 109,  67, 204],
+			[ 30, 253, 174,  97, 179],
+			[ 40, 254, 224, 139, 153],
+			[ 50, 255, 255, 191, 128],
+			[ 60, 230, 245, 152, 102],
+			[ 70, 171, 221, 164,  77],
+			[ 80, 102, 194, 165,  51],
+			[ 90,  50, 136, 189,  26],
+			[100,  94,  79, 162,   0]
+		];
+
+		// Swatch/label legend, shown under the toggle only while the layer is on.
+		const confLegend = document.createElement('div');
+		confLegend.id = 'conf-legend';
+		confLegend.innerHTML =
+			'<div class="conf-legend-head"><span>Color</span><span>%</span></div>'
+			+ CONF_STOPS.map(function (s) {
+				const rgba = 'rgba(' + s[1] + ',' + s[2] + ',' + s[3] + ',' + (s[4] / 255).toFixed(3) + ')';
+				return '<div class="conf-legend-row">'
+					+ '<span class="conf-legend-sw" style="--c:' + rgba + '"></span>'
+					+ '<span class="conf-legend-lb">' + s[0] + '</span>'
+					+ '</div>';
+			}).join('');
+
 		confLink.onclick = function (e) {
 			e.preventDefault();
 			e.stopPropagation();
 
-			const visible = afterMap.getLayoutProperty('Confidence', 'visibility') === 'visible';
-			afterMap.setLayoutProperty('Confidence', 'visibility', visible ? 'none' : 'visible');
+			const visible = beforeMap.getLayoutProperty('Confidence', 'visibility') === 'visible';
+			beforeMap.setLayoutProperty('Confidence', 'visibility', visible ? 'none' : 'visible');
 			this.className = visible ? '' : 'active';
+			confLegend.className = visible ? '' : 'visible';
 		};
 
 		layerR.appendChild(confLink);
+		layerR.appendChild(confLegend);
 			//}
 	});
 	
