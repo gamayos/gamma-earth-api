@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset='utf-8' />
-    <title>S2DR2 Demo</title>
+    <title>Planet SDSR Demo</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css' rel='stylesheet' />
@@ -183,19 +183,48 @@
 <script>
 	
 	const params = new URLSearchParams(window.location.search);
-	
-	//dataset = datasets[params.get("ds")];
-	ds = params.get("ds").split('-');
-	planet = params.get("planet");
-	satellogic = params.get("satellogic");
-	
-	latlon = window.location.hash.split('#')[1].split('/')
-	console.log(Number(latlon[0]),Number(latlon[2]), Number(latlon[1]))
-	
-	pid = ds[1] + "-" + ds[2] + "-" + ds[3]
-	filename = 'ds085422/20230101_085422_68_2458_3B_AnalyticMS_TOAR_8b_center'
-	tileBase = 'https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad'
-	root = tileBase + '/{z}/{x}/{y}@2x?url=s3://gamma.public/' + filename;
+
+	// Layers live one directory per scene:
+	//   s3://<bucket>/<prefix>/<batch>/<ds><suffix>/<layer>.tif
+	// e.g. s3://planet-serving-345370630617-eu-central-1-an/PSDSR-scene-inference/
+	//        batch_center2000_20260828/20221019_034506_83_2479_3B_AnalyticMS_TOAR_8b/sr_rgb8.tif
+	// Every part is overridable from the query string; the defaults point at the
+	// batch_center2000_20260828 run, so in practice only ?ds= needs to be given:
+	//   planet-demo-20260831.html?ds=20221019_034506_83_2479#16.76/8.103351/9.280767
+	const bucket = params.get('bucket') || 'planet-serving-345370630617-eu-central-1-an';
+	const prefix = params.get('prefix') !== null ? params.get('prefix') : 'PSDSR-scene-inference';
+	const batch  = params.get('batch')  !== null ? params.get('batch')  : 'batch_center2000_20260828';
+	// The Planet product suffix is stable across a batch, so ?ds= carries only the scene stem.
+	// A ds that already includes the suffix is passed through unchanged.
+	const suffix = params.get('suffix') !== null ? params.get('suffix') : '_3B_AnalyticMS_TOAR_8b';
+	const ds     = params.get('ds') || '20221019_034506_83_2479';
+	const scene  = ds.endsWith(suffix) ? ds : ds + suffix;
+
+	// filter(Boolean) lets ?prefix=&batch= flatten the path for scenes stored at the bucket root.
+	const sceneDir = [bucket, prefix, batch, scene].filter(Boolean).join('/');
+
+	// Layer filenames inside the scene directory. The NDVI products are written pre-colorized
+	// as 3-band uint8 RGB, same as the *_rgb8 files, so they take the identical render params.
+	const lqName     = params.get('lq')     || 'lq_rgb8';
+	const srName     = params.get('sr')     || 'sr_rgb8';
+	const lqNdviName = params.get('lqndvi') || 'lq_ndvi';
+	const srNdviName = params.get('srndvi') || 'sr_ndvi';
+	const confName   = params.get('conf')   || 'conf_overlay';
+
+	// Zoom the demo opens at when it has to generate its own view rather than read one from
+	// the hash. mapbox-gl writes this straight back out as the #z/lat/lon it puts in the URL.
+	const DEFAULT_ZOOM = 16;
+
+	// #z/lat/lon, matching mapbox-gl's own hash format.
+	const latlon = (window.location.hash || '').replace('#', '').split('/');
+	const hasHash = latlon.length > 2 && latlon.every(function (v) { return v !== '' && isFinite(v); });
+	const z   = hasHash ? Number(latlon[0]) : DEFAULT_ZOOM;
+	const lat = hasHash ? Number(latlon[1]) : 8.103351;
+	const lon = hasHash ? Number(latlon[2]) : 9.280767;
+
+	tileBase = params.get('tiler')
+		|| 'https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad'
+	root = tileBase + '/{z}/{x}/{y}@2x?url=s3://' + sceneDir + '/';
 	// resampling/reproject pin nearest-neighbour server-side. TiTiler 0.18.5 already defaults
 	// both to nearest, so this is belt-and-braces against a future default change; the visible
 	// smoothing comes from Mapbox's raster-resampling paint property, set on each layer below.
@@ -207,13 +236,20 @@
 	// 0/255. Requesting it as a fourth *data* band with return_mask=false keeps it continuous.
 	// The .png extension is required: with return_mask=false the mask is all-valid, so the
 	// server's format auto-selection would otherwise hand back JPEG, which has no alpha at all.
-	confRoot = tileBase + '/{z}/{x}/{y}@2x.png?url=s3://gamma.public/' + filename;
+	confRoot = tileBase + '/{z}/{x}/{y}@2x.png?url=s3://' + sceneDir + '/';
 	// No rescale: band 4 already carries the spec'd alpha, 255 * (1 - confidence/100), so a
 	// mostly-transparent overlay is the correct result — it means the SR output is mostly
 	// high-confidence. Stretching it would overstate low confidence.
 	confTif = '.tif&bidx=1&bidx=2&bidx=3&bidx=4&return_mask=false'
 	        + nn + '&disable_cache=true'
-	console.log(root, pid, tif)
+
+	const lqTiles     = root + lqName + tif;
+	const srTiles     = root + srName + tif;
+	const lqNdviTiles = root + lqNdviName + tif;
+	const srNdviTiles = root + srNdviName + tif;
+	const confTiles   = confRoot + confName + confTif;
+	console.log('scene s3://' + sceneDir, { lq: lqTiles, sr: srTiles,
+		lqNdvi: lqNdviTiles, srNdvi: srNdviTiles, conf: confTiles })
 	
 	mapStyle1 = {
 	    version: 8,
@@ -221,21 +257,21 @@
 	        s2: {
 	          	"type": 'raster',
 			  	"tiles": [
-					root + '_lq_rgb8' + tif
+					lqTiles
 				],
 	          	"tileSize": 256,
 	        },
 	        s2ndvi: {
 	          	"type": 'raster',
 			  	"tiles": [
-					root + '_lq_rgb8' + tif
+					lqNdviTiles
 				],
 	          	"tileSize": 256,
 	        },
 	        sdconf: {
 	          	"type": 'raster',
 			  	"tiles": [
-					confRoot + '_conf_overlay' + confTif
+					confTiles
 				],
 	          	"tileSize": 256,
 	        }
@@ -284,14 +320,14 @@
 	        "s2dr3": {
 	          "type": 'raster',
 			  "tiles": [
-				root + '_sr_rgb8' + tif
+				srTiles
 			  ],
 	          "tileSize": 256
 	        },
 	        "s2dr3ndvi": {
 	          "type": 'raster',
 			  "tiles": [
-				root + '_sr_rgb8' + tif
+				srNdviTiles
 			  ],
 	          "tileSize": 256
 	        }
@@ -324,8 +360,7 @@
   	mapboxgl.accessToken =
     "pk.eyJ1IjoiZ2lyaXNocGFsbGFnYXR0aSIsImEiOiJja2h6NGVuc20wYndjMnlxaDExbzlsa3B2In0.e94ZfcoPleAA2nqjeX10ag";
 
-	var center = [Number(latlon[2]), Number(latlon[1])] //dataset['center']
-	var z = Number(latlon[0])
+	var center = [lon, lat]
 	
 	var beforeMap = new mapboxgl.Map({
 	    container: 'before',
@@ -355,6 +390,26 @@
 	    // Set this to enable comparing two maps by mouse movement:
 	    // mousemove: true
 	});
+
+	// Without a hash the demo has no idea where the scene sits, and the static fallback above
+	// only matches one scene. Ask the tiler for the COG's bounds and jump to their centre.
+	// Deliberately not fitBounds: that picks whatever zoom frames the whole scene (~13 for a
+	// 6k px tile), which is too far out to judge SR detail. Moving beforeMap is enough —
+	// Compare keeps afterMap in sync. Failure is non-fatal: the map stays on the fallback view.
+	if (!hasHash) {
+		const infoUrl = tileBase.replace('/tiles/WebMercatorQuad', '/info')
+			+ '?url=s3://' + sceneDir + '/' + srName + '.tif';
+		fetch(infoUrl)
+			.then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+			.then(function (info) {
+				const b = info.bounds;
+				beforeMap.jumpTo({
+					center: [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2],
+					zoom: DEFAULT_ZOOM
+				});
+			})
+			.catch(function (e) { console.warn('scene bounds unavailable', e); });
+	}
 	
 	// After the last frame rendered before the map enters an "idle" state.
 	
@@ -366,7 +421,7 @@
 		}
 		
 		toggleableLayerIds = ['SD RGB','SD NDVI']
-		attribution = "© ESA "
+		attribution = "© Planet Labs PBC "
 		attribution += "| © Gamma Earth"
 		
 		document.getElementById("attribution").textContent = attribution;

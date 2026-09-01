@@ -1,0 +1,284 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Gamma Earth - Planet SDSR Demo</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+	<link rel="apple-touch-icon" sizes="180x180" href="https://storage.googleapis.com/0x7ff601307fa2/ge-logo-20230616-180-1.png" />
+	<link rel="icon" type="image/png" sizes="32x32" href="https://storage.googleapis.com/0x7ff601307fa2/ge-logo-20230616-32-1.png" />
+	<link rel="icon" type="image/png" sizes="16x16" href="https://storage.googleapis.com/0x7ff601307fa2/ge-logo-20230616-16-1.png" />
+	<link href='https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900italic,900' rel='stylesheet' type='text/css'>
+</head>
+<body>
+
+<style>
+	html, body {
+		margin: 0;
+		padding: 0;
+		height: 100%;
+		background: #111;
+		overflow: hidden;
+	}
+
+	body * {
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+	}
+
+	/* Panel + iframe split the full viewport height. min-height:0 is what lets the panel
+	   scroll instead of stretching the page. */
+	body {
+		display: flex;
+		flex-direction: column;
+	}
+
+	#main {
+		flex: 1 1 auto;
+		display: flex;
+		min-height: 0;
+	}
+
+	#panel {
+		flex: 0 0 auto;
+		/* Sized to one scene id: 23 characters plus the 12px row padding either side. 1ch is the
+		   advance of "0", which under tabular-nums is every digit's advance, so this tracks
+		   whatever font actually loads rather than a measurement of Roboto in particular. The
+		   font-size has to be declared here for ch to resolve at the same size as the rows. */
+		font-size: 14px;
+		width: calc(23ch + 26px);
+		overflow-y: auto;
+		border-right: 1px solid rgb(60,60,60);
+		font-family: Roboto, Arial, sans-serif;
+	}
+
+	#panel a {
+		display: block;
+		padding: 10px 12px;
+		text-decoration: none;
+		border-bottom: 1px solid rgb(38,38,38);
+		color: rgb(200,200,200);
+		font-size: 14px;
+		letter-spacing: 0px;
+		white-space: nowrap;
+		font-variant-numeric: tabular-nums;
+	}
+
+	#panel a:hover {
+		color: #ffffff;
+		background: rgb(30,30,30);
+	}
+
+	#panel a.active {
+		color: #70c4ff;
+		background: rgb(26,32,38);
+		box-shadow: inset 3px 0 0 #70c4ff;
+	}
+
+	/* Coordinates arrive after the scene list does, so this line starts empty. Reserving its
+	   height keeps the rows from jumping as the replies land. */
+	.sub {
+		display: block;
+		margin-top: 3px;
+		font-size: 11px;
+		line-height: 13px;
+		min-height: 13px;
+		color: rgb(125,125,125);
+		font-variant-numeric: tabular-nums;
+	}
+
+	#panel a.active .sub {
+		color: rgb(150,175,195);
+	}
+
+	#status {
+		padding: 12px;
+		font-family: Roboto, Arial, sans-serif;
+		font-size: 11px;
+		line-height: 16px;
+		color: rgb(120,120,120);
+	}
+
+	#demo-container {
+		flex: 1 1 auto;
+		position: relative;
+	}
+
+	#demo-container iframe {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border: 0;
+	}
+</style>
+
+<div id="main">
+	<nav id="panel"><div id="status">Loading datasets…</div></nav>
+	<div id="demo-container"></div>
+</div>
+
+<script>
+	// Scenes live at s3://<bucket>/<prefix>/<batch>/<scene>/<layer>.tif — one directory per
+	// scene. The same knobs the demo takes, so ?batch=… here switches both panels at once.
+	const params = new URLSearchParams(window.location.search);
+	const BUCKET = params.get('bucket') || 'planet-serving-345370630617-eu-central-1-an';
+	const PREFIX = params.get('prefix') !== null ? params.get('prefix') : 'PSDSR-scene-inference';
+	const BATCH  = params.get('batch')  !== null ? params.get('batch')  : 'batch_center2000_20260828';
+	const REGION = params.get('region') || 'eu-central-1';
+	const SUFFIX = params.get('suffix') !== null ? params.get('suffix') : '_3B_AnalyticMS_TOAR_8b';
+	const DEMO   = params.get('demo') || 'planet-demo-20260831.html';
+	const TILER  = params.get('tiler')
+		|| 'https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog';
+
+	const batchPrefix = [PREFIX, BATCH].filter(Boolean).join('/');
+
+	// Used only when the live listing below is unreachable. Regenerate with:
+	//   aws s3 ls s3://<bucket>/<prefix>/<batch>/ | awk '{print "\t\t\x27" $2 "\x27,"}' | tr -d /
+	const FALLBACK_SCENES = [
+		'20221019_034506_83_2479_3B_AnalyticMS_TOAR_8b',
+		'20221021_013652_45_2427_3B_AnalyticMS_TOAR_8b',
+		'20221026_164450_16_2499_3B_AnalyticMS_TOAR_8b',
+		'20221030_052132_11_2254_3B_AnalyticMS_TOAR_8b',
+		'20221031_035615_40_241f_3B_AnalyticMS_TOAR_8b',
+		'20221103_154630_28_247b_3B_AnalyticMS_TOAR_8b',
+		'20221106_103017_46_227a_3B_AnalyticMS_TOAR_8b',
+		'20221110_072458_88_2459_3B_AnalyticMS_TOAR_8b'
+	];
+
+	// ListObjectsV2 with delimiter=/ returns one CommonPrefix per scene directory. The bucket
+	// serves this anonymously, but it carries no CORS headers today, so the browser refuses to
+	// read the response and we fall back to the list above. Add a CORS rule allowing GET from
+	// this origin and the menu starts tracking the bucket live, with no redeploy.
+	function listScenes() {
+		const host = 'https://' + BUCKET + '.s3.' + REGION + '.amazonaws.com/';
+		const scenes = [];
+
+		function page(token) {
+			const q = new URLSearchParams({
+				'list-type': '2',
+				'prefix': batchPrefix + '/',
+				'delimiter': '/',
+				'max-keys': '1000'
+			});
+			if (token) q.set('continuation-token', token);
+			return fetch(host + '?' + q.toString())
+				.then(function (r) { return r.ok ? r.text() : Promise.reject('HTTP ' + r.status); })
+				.then(function (xml) {
+					const doc = new DOMParser().parseFromString(xml, 'application/xml');
+					if (doc.querySelector('parsererror')) return Promise.reject('bad XML');
+					doc.querySelectorAll('CommonPrefixes > Prefix').forEach(function (p) {
+						const name = p.textContent.slice(batchPrefix.length + 1).replace(/\/$/, '');
+						if (name) scenes.push(name);
+					});
+					const truncated = (doc.querySelector('IsTruncated') || {}).textContent === 'true';
+					const next = doc.querySelector('NextContinuationToken');
+					return truncated && next ? page(next.textContent) : scenes;
+				});
+		}
+		return page(null);
+	}
+
+	function coordLabel(lon, lat) {
+		return Math.abs(lat).toFixed(4) + (lat >= 0 ? '°N ' : '°S ')
+			+ Math.abs(lon).toFixed(4) + (lon >= 0 ? '°E' : '°W');
+	}
+
+	// No hash: the demo asks the tiler for the scene bounds and centres itself at zoom 16.
+	function demoUrl(ds) {
+		return DEMO + '?' + new URLSearchParams({
+			ds: ds, bucket: BUCKET, prefix: PREFIX, batch: BATCH
+		}).toString();
+	}
+
+	function show(ds, link) {
+		if (link.className === 'active') return;
+		document.querySelectorAll('#panel a').forEach(function (a) { a.className = ''; });
+		link.className = 'active';
+		const frame = document.createElement('iframe');
+		frame.src = demoUrl(ds);
+		const box = document.getElementById('demo-container');
+		box.textContent = '';
+		box.appendChild(frame);
+	}
+
+	// The tiler does send CORS headers, so the per-scene centre is fetched here rather than
+	// baked into the page. Rows render immediately and fill in their coordinates as replies land.
+	function addCoords(ds, sub) {
+		const url = TILER + '/info?url=' + encodeURIComponent(
+			's3://' + [BUCKET, batchPrefix, ds].filter(Boolean).join('/') + '/sr_rgb8.tif');
+		fetch(url)
+			.then(function (r) { return r.ok ? r.json() : Promise.reject('HTTP ' + r.status); })
+			.then(function (info) {
+				const b = info.bounds;
+				sub.textContent = coordLabel((b[0] + b[2]) / 2, (b[1] + b[3]) / 2);
+			})
+			.catch(function (e) { console.warn('bounds unavailable for ' + ds, e); });
+	}
+
+	function render(scenes, note) {
+		const panel = document.getElementById('panel');
+		panel.textContent = '';
+
+		if (!scenes.length) {
+			const empty = document.createElement('div');
+			empty.id = 'status';
+			empty.textContent = 'No datasets found under ' + batchPrefix + '/';
+			panel.appendChild(empty);
+			return;
+		}
+
+		scenes.sort();
+		scenes.forEach(function (scene, i) {
+			// The demo re-appends the product suffix, so the link carries the bare scene stem.
+			const ds = SUFFIX && scene.endsWith(SUFFIX) ? scene.slice(0, -SUFFIX.length) : scene;
+
+			const link = document.createElement('a');
+			link.href = '#';
+			link.textContent = ds;
+
+			const sub = document.createElement('span');
+			sub.className = 'sub';
+			link.appendChild(sub);
+
+			link.onclick = function (e) {
+				e.preventDefault();
+				e.stopPropagation();
+				show(ds, link);
+			};
+
+			panel.appendChild(link);
+			addCoords(scene, sub);
+			if (i === 0) show(ds, link);
+		});
+
+		if (note) {
+			const status = document.createElement('div');
+			status.id = 'status';
+			status.textContent = note;
+			panel.appendChild(status);
+		}
+	}
+
+	listScenes()
+		.then(function (scenes) { render(scenes, null); })
+		.catch(function (e) {
+			console.warn('S3 listing unavailable (' + e + '), using the built-in scene list');
+			render(FALLBACK_SCENES.slice(), 'Bucket listing unreachable — showing the built-in list.');
+		});
+</script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PB0RTR8GJZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-PB0RTR8GJZ');
+</script>
+
+</body>
+</html>
