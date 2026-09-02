@@ -29,7 +29,9 @@
       "Bash(curl -s --max-time 60 -o /private/tmp/claude-501/-Users-gamayos-Documents-gamma-earth-gamma-earth-api/786e09e0-23f7-4afd-9854-7a417d2064fd/scratchpad/c_raw.png 'https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad/17/68915/62575@2x.png?url=s3://gamma.public/ds085422/20230101_085422_68_2458_3B_AnalyticMS_TOAR_8b_center_conf_overlay.tif&bidx=1&bidx=2&bidx=3&bidx=4&return_mask=false&resampling=nearest&reproject=nearest')",
       "Bash(python3 /private/tmp/claude-501/-Users-gamayos-Documents-gamma-earth-gamma-earth-api/786e09e0-23f7-4afd-9854-7a417d2064fd/scratchpad/alpha.py /private/tmp/claude-501/-Users-gamayos-Documents-gamma-earth-gamma-earth-api/786e09e0-23f7-4afd-9854-7a417d2064fd/scratchpad/c_raw.png)",
       "Bash(python3 -)",
-      "Bash(curl -s --max-time 30 \"https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css\")"
+      "Bash(curl -s --max-time 30 \"https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css\")",
+      "Read(//private/tmp/**)",
+      "Bash(curl -s --max-time 60 \"https://planet-serving-345370630617-eu-central-1-an.s3.eu-central-1.amazonaws.com/?list-type=2&prefix=PSDSR-scene-inference/batch_center2000_20260828/&delimiter=/&max-keys=1000\" -o /private/tmp/claude-501/-Users-gamayos-Documents-gamma-earth-gamma-earth-api/786e09e0-23f7-4afd-9854-7a417d2064fd/scratchpad/ls.xml -w \"HTTP %{http_code}  %{size_download}B\\\\n\")"
     ]
   }
 }
