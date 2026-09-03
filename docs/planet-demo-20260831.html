@@ -203,10 +203,13 @@
 	// filter(Boolean) lets ?prefix=&batch= flatten the path for scenes stored at the bucket root.
 	const sceneDir = [bucket, prefix, batch, scene].filter(Boolean).join('/');
 
-	// Layer filenames inside the scene directory. The NDVI products are written pre-colorized
-	// as 3-band uint8 RGB, same as the *_rgb8 files, so they take the identical render params.
+	// Layer filenames inside the scene directory. The NDVI and TCI products are written
+	// pre-colorized as 3-band uint8 RGB, same as the *_rgb8 files, so they take the identical
+	// render params. *_rgb8 is the TOAR reflectance composite; *_tci8 is the true-colour image.
 	const lqName     = params.get('lq')     || 'lq_rgb8';
 	const srName     = params.get('sr')     || 'sr_rgb8';
+	const lqTciName  = params.get('lqtci')  || 'lq_tci8';
+	const srTciName  = params.get('srtci')  || 'sr_tci8';
 	const lqNdviName = params.get('lqndvi') || 'lq_ndvi';
 	const srNdviName = params.get('srndvi') || 'sr_ndvi';
 	const confName   = params.get('conf')   || 'conf_overlay';
@@ -245,10 +248,13 @@
 
 	const lqTiles     = root + lqName + tif;
 	const srTiles     = root + srName + tif;
+	const lqTciTiles  = root + lqTciName + tif;
+	const srTciTiles  = root + srTciName + tif;
 	const lqNdviTiles = root + lqNdviName + tif;
 	const srNdviTiles = root + srNdviName + tif;
 	const confTiles   = confRoot + confName + confTif;
 	console.log('scene s3://' + sceneDir, { lq: lqTiles, sr: srTiles,
+		lqTci: lqTciTiles, srTci: srTciTiles,
 		lqNdvi: lqNdviTiles, srNdvi: srNdviTiles, conf: confTiles })
 	
 	mapStyle1 = {
@@ -258,6 +264,13 @@
 	          	"type": 'raster',
 			  	"tiles": [
 					lqTiles
+				],
+	          	"tileSize": 256,
+	        },
+	        s2tci: {
+	          	"type": 'raster',
+			  	"tiles": [
+					lqTciTiles
 				],
 	          	"tileSize": 256,
 	        },
@@ -278,7 +291,7 @@
 	    },
 	    "layers": [
 	        {
-	            "id": 'SD RGB',
+	            "id": 'SD TOAR',
 	            "source": 's2',
 	            "type": 'raster',
 	            "minzoom": 0,
@@ -286,6 +299,16 @@
 				"paint": {
 				          'raster-resampling': 'nearest'
 				        }
+	        },
+			{
+	            "id": 'SD TCI',
+	            "source": 's2tci',
+	            "type": 'raster',
+	            "minzoom": 0,
+	            "maxzoom": 19,
+				"paint": {
+					'raster-resampling': 'nearest'
+				}
 	        },
 			{
 	            "id": 'SD NDVI',
@@ -324,6 +347,13 @@
 			  ],
 	          "tileSize": 256
 	        },
+	        "s2dr3tci": {
+	          "type": 'raster',
+			  "tiles": [
+				srTciTiles
+			  ],
+	          "tileSize": 256
+	        },
 	        "s2dr3ndvi": {
 	          "type": 'raster',
 			  "tiles": [
@@ -334,8 +364,18 @@
 	    },
 	    "layers": [
 	        {
-	            "id": 'SD RGB',
+	            "id": 'SD TOAR',
 	            "source": 's2dr3',
+	            "type": 'raster',
+	            "minzoom": 0,
+	            "maxzoom": 19,
+				"paint": {
+					'raster-resampling': 'nearest'
+				}
+	        },
+	        {
+	            "id": 'SD TCI',
+	            "source": 's2dr3tci',
 	            "type": 'raster',
 	            "minzoom": 0,
 	            "maxzoom": 19,
@@ -416,11 +456,11 @@
 	beforeMap.on('load', () => {
 		
 		// If these two layers were not added to the map, abort
-		if (!beforeMap.getLayer('SD RGB')) { //} || !beforeMap.getLayer('Mapbox') || !beforeMap.getLayer('ESRI')) {
+		if (!beforeMap.getLayer('SD TOAR')) { //} || !beforeMap.getLayer('Mapbox') || !beforeMap.getLayer('ESRI')) {
 			return;
 		}
 		
-		toggleableLayerIds = ['SD RGB','SD NDVI']
+		toggleableLayerIds = ['SD TOAR','SD TCI','SD NDVI']
 		attribution = "© Planet Labs PBC "
 		attribution += "| © Gamma Earth"
 		
@@ -474,9 +514,9 @@
 		}
 	
 		
-		beforeMap.setLayoutProperty('SD RGB', 'visibility', 'visible');
-		afterMap.setLayoutProperty('SD RGB', 'visibility', 'visible');
-		document.getElementById('SD RGB').className = 'active';
+		beforeMap.setLayoutProperty('SD TOAR', 'visibility', 'visible');
+		afterMap.setLayoutProperty('SD TOAR', 'visibility', 'visible');
+		document.getElementById('SD TOAR').className = 'active';
 		
 		// Create a link.
 		id = 'SRSD'
