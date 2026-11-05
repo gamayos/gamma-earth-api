@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>S2DR3 Before / After</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css" type="text/css"/>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #111 !important;
+        }
+
+        body * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .mapbox-attribution-container {
+            bottom: 0;
+            right: 0;
+            position: absolute;
+            display: block;
+            margin: 0;
+            padding: 0 5px;
+            font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            line-height: 20px;
+            font-weight: normal;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            background-color: rgba(255, 255, 255, 0.5);
+            color: rgba(0, 0, 0, 0.75);
+        }
+
+        /* Date labels, one for each side of the slider */
+        .date-label {
+            position: absolute;
+            z-index: 1;
+            top: 10px;
+            width: 120px;
+            padding: 6px 0;
+            border-radius: 3px;
+            background: #3887be;
+            color: #fff;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 13px;
+            line-height: 17px;
+            text-align: center;
+        }
+
+        .date-label small {
+            display: block;
+            font-size: 11px;
+            opacity: 0.85;
+        }
+
+        #label-before { left: 10px; }
+        #label-after { right: 10px; }
+
+        /* Layer selector, applied to both sides */
+        .menu {
+            background: #fff;
+            position: absolute;
+            z-index: 1;
+            top: 62px;
+            left: 10px;
+            border-radius: 3px;
+            width: 120px;
+            border: 1px solid rgba(0, 0, 0, 0.4);
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .menu:empty { display: none; }
+
+        .menu a {
+            font-size: 13px;
+            color: #404040;
+            display: block;
+            margin: 0;
+            padding: 10px;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+            text-align: center;
+        }
+
+        .menu a:last-child { border: none; }
+
+        .menu a:hover {
+            background-color: #f8f8f8;
+            color: #404040;
+        }
+
+        .menu a.active {
+            background-color: #1b4f72;
+            color: #ffffff;
+        }
+
+        .menu a.active:hover { background: #163f5b; }
+
+        #error {
+            display: none;
+            position: absolute;
+            z-index: 2;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 560px;
+            width: calc(100% - 64px);
+            padding: 16px;
+            border-radius: 3px;
+            background: #fff;
+            color: #404040;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 14px;
+            line-height: 20px;
+            -webkit-user-select: text;
+            user-select: text;
+            overflow-wrap: anywhere;
+        }
+
+        #error code {
+            -webkit-user-select: text;
+            user-select: text;
+        }
+    </style>
+</head>
+<body>
+
+<div id="label-before" class="date-label"></div>
+<div id="label-after" class="date-label"></div>
+<nav id="menu" class="menu"></nav>
+<div id="comparison-container">
+    <div id="before" class="map"></div>
+    <div id="after" class="map"></div>
+</div>
+<div id="attribution" class="mapbox-attribution-container"></div>
+<div id="error"></div>
+
+<script>
+    // Usage: s2dr3-before-after.html?before=<dataset id>&after=<dataset id>#<zoom>/<lat>/<lon>
+    // Dataset ids look like ES-T30SYJ-f07fe154a-20241026.
+    const TILE_ROOT = 'https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad';
+    const BUCKET = 's3://s2dr3-output-prod';
+    const ID_PATTERN = /^([A-Z]{2})-(T[0-9A-Z]{5}-[0-9a-f]+-(\d{4})(\d{2})(\d{2}))$/;
+    const LAYERS = [
+        { id: 'S2DR3 RGB', band: 'TCI' },
+        { id: 'S2DR3 NDVI', band: 'NDVI' },
+        { id: 'S2DR3 B11,B8,B5', band: 'IRP' }
+    ];
+    const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    function showError(message) {
+        const error = document.getElementById('error');
+        error.textContent = message;
+        error.style.display = 'block';
+    }
+
+    function parseDataset(value) {
+        const match = ID_PATTERN.exec(value || '');
+        if (!match) {
+            return null;
+        }
+        const [, country, pid, year, month, day] = match;
+        return {
+            pid: pid,
+            path: `${BUCKET}/${country}/${pid.split('-')[0]}/${pid}`,
+            date: `${Number(day)} ${MONTHS[Number(month) - 1]} ${year}`
+        };
+    }
+
+    function parseView(hash) {
+        const parts = hash.replace(/^#/, '').split('/').map(Number);
+        if (parts.length < 3 || parts.slice(0, 3).some(Number.isNaN)) {
+            return null;
+        }
+        return { zoom: parts[0], center: [parts[2], parts[1]] };
+    }
+
+    // One style per dataset. Layer ids match on both sides so one button switches both.
+    function buildStyle(dataset) {
+        const style = { version: 8, sources: {}, layers: [] };
+        LAYERS.forEach((layer, index) => {
+            style.sources[layer.band] = {
+                type: 'raster',
+                tiles: [`${TILE_ROOT}/{z}/{x}/{y}@2x?url=${dataset.path}/S2L2Ax10_${dataset.pid}_${layer.band}.tif`],
+                tileSize: 256
+            };
+            style.layers.push({
+                id: layer.id,
+                source: layer.band,
+                type: 'raster',
+                minzoom: 0,
+                maxzoom: 19,
+                layout: { visibility: index === 0 ? 'visible' : 'none' }
+            });
+        });
+        return style;
+    }
+
+    function setLabel(elementId, title, date) {
+        const label = document.getElementById(elementId);
+        label.textContent = title;
+        const small = document.createElement('small');
+        small.textContent = date;
+        label.appendChild(small);
+    }
+
+    function start() {
+        const params = new URLSearchParams(window.location.search);
+        const before = parseDataset(params.get('before'));
+        const after = parseDataset(params.get('after'));
+        const view = parseView(window.location.hash);
+
+        if (!before || !after || !view) {
+            document.getElementById('label-before').style.display = 'none';
+            document.getElementById('label-after').style.display = 'none';
+            showError('This link needs two dataset IDs and a map position, for example: ' +
+                '?before=ES-T30SYJ-f07fe154a-20241026&after=ES-T30SYJ-f07fe154a-20241110#13.5/39.39/-0.40');
+            return;
+        }
+
+        setLabel('label-before', 'Before', before.date);
+        setLabel('label-after', 'After', after.date);
+        document.getElementById('attribution').textContent = '© ESA | © Gamma Earth';
+
+        mapboxgl.accessToken = 'pk.eyJ1IjoiZ2lyaXNocGFsbGFnYXR0aSIsImEiOiJja2h6NGVuc20wYndjMnlxaDExbzlsa3B2In0.e94ZfcoPleAA2nqjeX10ag';
+
+        const beforeMap = new mapboxgl.Map({
+            container: 'before',
+            hash: true,
+            style: buildStyle(before),
+            center: view.center,
+            maxZoom: 18,
+            zoom: view.zoom
+        });
+
+        const afterMap = new mapboxgl.Map({
+            container: 'after',
+            style: buildStyle(after),
+            center: view.center,
+            maxZoom: 18,
+            zoom: view.zoom
+        });
+
+        new mapboxgl.Compare(beforeMap, afterMap, '#comparison-container');
+
+        const menu = document.getElementById('menu');
+        LAYERS.forEach((layer, index) => {
+            const link = document.createElement('a');
+            link.href = '#';
+            link.textContent = layer.id;
+            link.className = index === 0 ? 'active' : '';
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                Array.from(menu.children).forEach((other, otherIndex) => {
+                    const selected = other === link;
+                    const visibility = selected ? 'visible' : 'none';
+                    beforeMap.setLayoutProperty(LAYERS[otherIndex].id, 'visibility', visibility);
+                    afterMap.setLayoutProperty(LAYERS[otherIndex].id, 'visibility', visibility);
+                    other.className = selected ? 'active' : '';
+                });
+            });
+            menu.appendChild(link);
+        });
+    }
+
+    start();
+</script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PB0RTR8GJZ"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-PB0RTR8GJZ');
+</script>
+
+</body>
+</html>
