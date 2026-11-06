@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>S2DR3 Ground Truth</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css" type="text/css"/>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #111 !important;
+        }
+
+        body * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .mapbox-attribution-container {
+            bottom: 0;
+            right: 0;
+            position: absolute;
+            display: block;
+            margin: 0;
+            padding: 0 5px;
+            font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            line-height: 20px;
+            font-weight: normal;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            background-color: rgba(255, 255, 255, 0.5);
+            color: rgba(0, 0, 0, 0.75);
+        }
+
+        /* One label for each side of the slider */
+        .side-label {
+            position: absolute;
+            z-index: 1;
+            top: 10px;
+            width: 150px;
+            padding: 6px 0;
+            border-radius: 3px;
+            background: #3887be;
+            color: #fff;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 13px;
+            line-height: 17px;
+            text-align: center;
+        }
+
+        .side-label small {
+            display: block;
+            font-size: 11px;
+            opacity: 0.85;
+        }
+
+        #label-s2dr { left: 10px; }
+        #label-truth { right: 10px; background: #2e7d4f; }
+
+        /* Shown while either side is still fetching tiles */
+        #loader {
+            position: absolute;
+            z-index: 1;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 12px;
+            border-radius: 3px;
+            background: rgba(17, 17, 17, 0.8);
+            color: #fff;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 13px;
+            line-height: 17px;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        /* The delay stops it flashing when tiles come straight from the cache */
+        #loader.visible {
+            opacity: 1;
+            transition: opacity 0.15s 0.2s;
+        }
+
+        #loader::before {
+            content: '';
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: loader-spin 0.8s linear infinite;
+        }
+
+        @keyframes loader-spin {
+            to { transform: rotate(360deg); }
+        }
+
+        #error {
+            display: none;
+            position: absolute;
+            z-index: 2;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 560px;
+            width: calc(100% - 64px);
+            padding: 16px;
+            border-radius: 3px;
+            background: #fff;
+            color: #404040;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 14px;
+            line-height: 20px;
+            -webkit-user-select: text;
+            user-select: text;
+            overflow-wrap: anywhere;
+        }
+    </style>
+</head>
+<body>
+
+<div id="label-s2dr" class="side-label"></div>
+<div id="label-truth" class="side-label"></div>
+<div id="comparison-container">
+    <div id="before" class="map"></div>
+    <div id="after" class="map"></div>
+</div>
+<div id="attribution" class="mapbox-attribution-container"></div>
+<div id="loader" role="status" aria-live="polite">Loading imagery…</div>
+<div id="error"></div>
+
+<script>
+    // Usage:
+    //   NAIP (US only):  s2dr3-ground-truth.html?ds=<dataset id>&gt=naip&naip=<year>#<zoom>/<lat>/<lon>
+    //   Vantor:          s2dr3-ground-truth.html?ds=<dataset id>&gt=vantor&vantor=<event>/<acquisition id>#<zoom>/<lat>/<lon>
+    // Left: the S2DR3 dataset. Right: the ground-truth imagery.
+    // gt defaults to naip, and naip defaults to the dataset's year.
+    const TILE_ROOT = 'https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad';
+    const BUCKET = 's3://s2dr3-output-prod';
+    const PC_API = 'https://planetarycomputer.microsoft.com/api';
+    // Vantor (formerly Maxar) Open Data. Older events are in the maxar bucket, newer ones in the vantor bucket.
+    const VANTOR_CATALOGS = [
+        'https://maxar-opendata.s3.amazonaws.com/events',
+        'https://vantor-opendata.s3.amazonaws.com/events'
+    ];
+    const VANTOR_SATELLITES = { GE01: 'GeoEye-1', WV01: 'WorldView-1', WV02: 'WorldView-2', WV03: 'WorldView-3', WV04: 'WorldView-4' };
+    const ID_PATTERN = /^([A-Z]{2})-(T[0-9A-Z]{5}-[0-9a-f]+-(\d{4})(\d{2})(\d{2}))$/;
+    const VANTOR_PATTERN = /^([A-Za-z0-9_-]+)\/([0-9A-Fa-f]{16})$/;
+    const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const EXAMPLES = 'for example ?ds=ES-T30SYJ-f07fe154a-20241110&gt=vantor&vantor=Floods-Spain-Oct24/1030010108767300#15/39.42/-0.41 ' +
+        'or ?ds=US-T14SLH-a67a025e5-20230714&gt=naip&naip=2023#14/37.97/-100.87';
+
+    function showError(message) {
+        document.getElementById('label-truth').style.display = 'none';
+        document.getElementById('label-s2dr').style.display = 'none';
+        document.getElementById('loader').classList.remove('visible');
+        const error = document.getElementById('error');
+        error.textContent = message;
+        error.style.display = 'block';
+    }
+
+    function formatDate(isoDate) {
+        const [year, month, day] = isoDate.slice(0, 10).split('-');
+        return `${Number(day)} ${MONTHS[Number(month) - 1]} ${year}`;
+    }
+
+    function parseDataset(value) {
+        const match = ID_PATTERN.exec(value || '');
+        if (!match) {
+            return null;
+        }
+        const [, country, pid, year, month, day] = match;
+        return {
+            pid: pid,
+            year: year,
+            path: `${BUCKET}/${country}/${pid.split('-')[0]}/${pid}`,
+            date: formatDate(`${year}-${month}-${day}`)
+        };
+    }
+
+    function parseView(hash) {
+        const parts = hash.replace(/^#/, '').split('/').map(Number);
+        if (parts.length < 3 || parts.slice(0, 3).some(Number.isNaN)) {
+            return null;
+        }
+        return { zoom: parts[0], center: [parts[2], parts[1]] };
+    }
+
+    function setLabel(elementId, title, detail) {
+        const label = document.getElementById(elementId);
+        label.textContent = title;
+        const small = document.createElement('small');
+        small.textContent = detail;
+        label.appendChild(small);
+    }
+
+    async function fetchJson(url, options) {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            throw new Error(`${response.status} from ${url}`);
+        }
+        return response.json();
+    }
+
+    // Each ground-truth source returns raster sources for the map, a label and an attribution.
+
+    // NAIP: registers a one-year mosaic on Microsoft Planetary Computer.
+    async function naipSource(year, center) {
+        const search = await fetchJson(`${PC_API}/data/v1/mosaic/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                collections: ['naip'],
+                'filter-lang': 'cql2-json',
+                filter: {
+                    op: 'anyinteracts',
+                    args: [{ property: 'datetime' }, { interval: [`${year}-01-01T00:00:00Z`, `${year}-12-31T23:59:59Z`] }]
+                }
+            })
+        });
+        // The flight covering the map center, for the label.
+        const [lon, lat] = center;
+        let detail = `${year} · no flight here`;
+        try {
+            const result = await fetchJson(`${PC_API}/stac/v1/search?collections=naip&limit=1` +
+                `&bbox=${lon},${lat},${lon + 0.0001},${lat + 0.0001}` +
+                `&datetime=${year}-01-01T00:00:00Z/${year}-12-31T23:59:59Z`);
+            const item = result.features && result.features[0];
+            if (item) {
+                detail = `${formatDate(item.properties.datetime)} · ${item.properties.gsd} m`;
+            }
+        } catch (err) {
+            detail = year;
+        }
+        return {
+            sources: [{
+                tiles: [`${PC_API}/data/v1/mosaic/${search.searchid}/tiles/WebMercatorQuad/{z}/{x}/{y}@2x` +
+                    '?collection=naip&assets=image&asset_bidx=image%7C1%2C2%2C3&format=jpg']
+            }],
+            title: 'NAIP aerial',
+            detail: detail,
+            attribution: '© USDA NAIP via Microsoft Planetary Computer'
+        };
+    }
+
+    // Vantor: one capture, delivered as several image tiles. Each becomes its own
+    // source, limited to its own area so the map never asks for tiles outside it.
+    async function vantorSource(event, acquisition) {
+        let collection = null;
+        let collectionUrl = null;
+        for (const catalog of VANTOR_CATALOGS) {
+            collectionUrl = `${catalog}/${event}/ard/acquisition_collections/${acquisition}_collection.json`;
+            try {
+                collection = await fetchJson(collectionUrl);
+                break;
+            } catch (err) {
+                collection = null;
+            }
+        }
+        if (!collection) {
+            throw new Error(`capture ${event}/${acquisition} not found`);
+        }
+        const itemUrls = collection.links
+            .filter((link) => link.rel === 'item')
+            .map((link) => new URL(link.href, collectionUrl).href);
+        const items = await Promise.all(itemUrls.map((url) =>
+            fetchJson(url).then((item) => ({ item: item, url: url }))));
+        const sources = items
+            .filter(({ item }) => item.assets && item.assets.visual)
+            .map(({ item, url }) => ({
+                tiles: [`${TILE_ROOT}/{z}/{x}/{y}@2x?url=${encodeURIComponent(new URL(item.assets.visual.href, url).href)}`],
+                bounds: item.bbox
+            }));
+        if (sources.length === 0) {
+            throw new Error(`capture ${event}/${acquisition} has no images`);
+        }
+        const first = items[0].item.properties;
+        const gsds = items.map(({ item }) => item.properties.gsd).filter(Number.isFinite);
+        const gsd = gsds.length ? (gsds.reduce((a, b) => a + b, 0) / gsds.length).toFixed(2) : null;
+        const satellite = VANTOR_SATELLITES[first.platform] || first.platform || 'satellite';
+        return {
+            sources: sources,
+            title: `Vantor ${satellite}`,
+            detail: gsd ? `${formatDate(first.datetime)} · ${gsd} m` : formatDate(first.datetime),
+            attribution: '© Vantor Open Data (CC BY-NC 4.0)'
+        };
+    }
+
+    function rasterStyle(sources) {
+        const style = { version: 8, sources: {}, layers: [] };
+        sources.forEach((source, index) => {
+            const id = `imagery-${index}`;
+            style.sources[id] = Object.assign({ type: 'raster', tileSize: 256 }, source);
+            style.layers.push({ id: id, source: id, type: 'raster', minzoom: 0, maxzoom: 19 });
+        });
+        return style;
+    }
+
+    async function start() {
+        const params = new URLSearchParams(window.location.search);
+        const dataset = parseDataset(params.get('ds'));
+        const view = parseView(window.location.hash);
+        const groundTruth = (params.get('gt') || 'naip').toLowerCase();
+        const naipYear = params.get('naip') || (dataset && dataset.year);
+        const vantor = VANTOR_PATTERN.exec(params.get('vantor') || '');
+
+        const validTruth = (groundTruth === 'naip' && /^\d{4}$/.test(naipYear || '')) ||
+            (groundTruth === 'vantor' && vantor);
+        if (!dataset || !view || !validTruth) {
+            showError('This link needs a dataset ID, a ground-truth source and a map position, ' + EXAMPLES);
+            return;
+        }
+
+        setLabel('label-s2dr', 'S2DR3', dataset.date);
+        setLabel('label-truth', groundTruth === 'naip' ? 'NAIP aerial' : 'Vantor', 'loading…');
+        document.getElementById('loader').classList.add('visible');
+
+        let truth;
+        try {
+            truth = groundTruth === 'naip'
+                ? await naipSource(naipYear, view.center)
+                : await vantorSource(vantor[1], vantor[2]);
+        } catch (err) {
+            showError(`The ground-truth imagery could not be loaded (${err.message}). Please check the link or try again later.`);
+            return;
+        }
+
+        setLabel('label-truth', truth.title, truth.detail);
+        document.getElementById('attribution').textContent = `© ESA | © Gamma Earth | ${truth.attribution}`;
+
+        mapboxgl.accessToken = 'pk.eyJ1IjoiZ2lyaXNocGFsbGFnYXR0aSIsImEiOiJja2h6NGVuc20wYndjMnlxaDExbzlsa3B2In0.e94ZfcoPleAA2nqjeX10ag';
+
+        const beforeMap = new mapboxgl.Map({
+            container: 'before',
+            hash: true,
+            style: rasterStyle([{ tiles: [`${TILE_ROOT}/{z}/{x}/{y}@2x?url=${dataset.path}/S2L2Ax10_${dataset.pid}_TCI.tif`] }]),
+            center: view.center,
+            maxZoom: 18,
+            zoom: view.zoom
+        });
+
+        const afterMap = new mapboxgl.Map({
+            container: 'after',
+            style: rasterStyle(truth.sources),
+            center: view.center,
+            maxZoom: 18,
+            zoom: view.zoom
+        });
+
+        new mapboxgl.Compare(beforeMap, afterMap, '#comparison-container');
+
+        // Keep the loader up until both sides have settled. This checks the tile
+        // state directly because 'idle' doesn't fire after a 404, which is what
+        // tiles outside a dataset return when someone pans past its edge.
+        const loader = document.getElementById('loader');
+        const maps = [beforeMap, afterMap];
+        let loaderTimer = null;
+        const hideLoaderWhenDone = () => {
+            if (maps.every((map) => map.loaded() && map.areTilesLoaded())) {
+                loader.classList.remove('visible');
+                clearInterval(loaderTimer);
+                loaderTimer = null;
+            }
+        };
+        const showLoader = () => {
+            loader.classList.add('visible');
+            if (loaderTimer === null) {
+                loaderTimer = setInterval(hideLoaderWhenDone, 250);
+            }
+        };
+        maps.forEach((map) => map.on('dataloading', showLoader));
+        showLoader();
+    }
+
+    start();
+</script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PB0RTR8GJZ"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-PB0RTR8GJZ');
+</script>
+
+</body>
+</html>
