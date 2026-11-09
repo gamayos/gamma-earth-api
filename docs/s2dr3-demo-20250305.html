@@ -140,7 +140,42 @@
 	@keyframes loader-spin {
 		to { transform: rotate(360deg); }
 	}
-	
+
+	/* Bottom-right footer: cursor coordinates next to the attribution */
+	#footer {
+		position: absolute;
+		z-index: 2;
+		right: 0;
+		bottom: 0;
+		display: flex;
+	}
+
+	#footer .mapbox-attribution-container {
+		position: static;
+	}
+
+	#coords {
+		margin: 0;
+		padding: 0 8px;
+		font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+		font-size: 12px;
+		line-height: 20px;
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+		background-color: rgba(255, 255, 255, 0.5);
+		color: rgba(0, 0, 0, 0.75);
+		border-right: 1px solid rgba(0, 0, 0, 0.2);
+	}
+
+	#coords:empty {
+		display: none;
+	}
+
+	#coords.copied {
+		background-color: #3887be;
+		color: #fff;
+	}
+
 </style>
 
 <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
@@ -152,7 +187,10 @@
     <div id="before" class="map"></div>
     <div id="after" class="map"></div>
 </div>
-<div id="attribution" class="mapbox-attribution-container"></div>
+<div id="footer">
+    <div id="coords" title="Right-click on the map to copy the coordinates"></div>
+    <div id="attribution" class="mapbox-attribution-container"></div>
+</div>
 <div id="loader" role="status" aria-live="polite">Loading imagery…</div>
 
 <!--<script src='s2dr2datasets11.js'></script>-->
@@ -332,6 +370,62 @@
 	};
 	maps.forEach((m) => m.on('dataloading', showLoader));
 	showLoader();
+
+	// Show the cursor position as decimal lat, lon in the footer, and copy
+	// it to the clipboard on right-click. Both maps share the same view, so
+	// either side of the slider reports the same position.
+	const coords = document.getElementById('coords');
+	const formatLatLon = (lngLat) => lngLat.lat.toFixed(6) + ', ' + lngLat.lng.toFixed(6);
+	let copiedTimer = null;
+
+	// Fallback for plain http, local files, or browsers that block the Clipboard API
+	const copyWithTextarea = (text) => {
+		const field = document.createElement('textarea');
+		field.value = text;
+		field.style.position = 'fixed';
+		field.style.opacity = '0';
+		document.body.appendChild(field);
+		field.select();
+		const ok = document.execCommand('copy');
+		document.body.removeChild(field);
+		return ok ? Promise.resolve() : Promise.reject(new Error('copy failed'));
+	};
+	const copyText = (text) => {
+		if (navigator.clipboard && window.isSecureContext) {
+			return navigator.clipboard.writeText(text).catch(() => copyWithTextarea(text));
+		}
+		return copyWithTextarea(text);
+	};
+
+	maps.forEach((m) => {
+		m.on('mousemove', (e) => {
+			if (copiedTimer === null) {
+				coords.textContent = formatLatLon(e.lngLat);
+			}
+		});
+		m.on('contextmenu', (e) => {
+			e.preventDefault();
+			const text = formatLatLon(e.lngLat);
+			copyText(text).then(() => {
+				coords.textContent = 'Copied ' + text;
+				coords.classList.add('copied');
+			}).catch(() => {
+				coords.textContent = 'Could not copy ' + text;
+			}).finally(() => {
+				clearTimeout(copiedTimer);
+				copiedTimer = setTimeout(() => {
+					coords.classList.remove('copied');
+					coords.textContent = text;
+					copiedTimer = null;
+				}, 1500);
+			});
+		});
+	});
+	document.getElementById('comparison-container').addEventListener('mouseleave', () => {
+		if (copiedTimer === null) {
+			coords.textContent = '';
+		}
+	});
 	
 	// After the last frame rendered before the map enters an "idle" state.
 	
