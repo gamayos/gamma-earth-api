@@ -6,14 +6,19 @@
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css' rel='stylesheet' />
-    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
-    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css" type="text/css"/>
     <style>
+        :root {
+            /* Each panel is a square: as large as fits three across, leaving room for labels and footer */
+            --gap: 12px;
+            --size: min(calc((100vw - 2 * var(--gap) - 32px) / 3), calc(100vh - 110px));
+        }
+
         body {
             margin: 0;
             padding: 0;
             overflow: hidden;
             background: #111 !important;
+            font-family: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
         }
 
         body * {
@@ -24,58 +29,124 @@
             user-select: none;
         }
 
-        .map {
+        #panels {
             position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 100%;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--gap);
         }
 
-        .mapbox-attribution-container {
-            bottom: 0;
-            right: 0;
+        .panel {
+            width: var(--size);
+        }
+
+        .panel-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 6px;
+            padding: 5px 10px;
+            border-radius: 3px;
+            background: #3887be;
+            color: #fff;
+            font-size: 13px;
+            line-height: 17px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .panel-label small {
+            font-size: 11px;
+            opacity: 0.85;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #label-s2dr { background: #1b4f72; }
+        #label-truth { background: #2e7d4f; }
+
+        .map-wrap {
+            position: relative;
+            width: var(--size);
+            height: var(--size);
+            border-radius: 3px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .map {
             position: absolute;
-            display: block;
+            inset: 0;
+        }
+
+        /* Marks the cursor's position in the other two panels */
+        .cursor {
+            display: none;
+            position: absolute;
+            z-index: 1;
+            width: 24px;
+            height: 24px;
+            margin: -12px 0 0 -12px;
+            pointer-events: none;
+            background:
+                linear-gradient(#ff0, #ff0) center / 2px 100% no-repeat,
+                linear-gradient(#ff0, #ff0) center / 100% 2px no-repeat;
+            filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 1px #000);
+        }
+
+        .panel-message {
+            display: none;
+            position: absolute;
+            z-index: 1;
+            inset: 0;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            color: #ccc;
+            font-size: 13px;
+            line-height: 18px;
+            text-align: center;
+        }
+
+        /* Bottom-right footer: cursor coordinates next to the attribution */
+        #footer {
+            position: absolute;
+            z-index: 2;
+            right: 0;
+            bottom: 0;
+            display: flex;
+        }
+
+        #footer > div {
             margin: 0;
-            padding: 0 5px;
+            padding: 0 8px;
             font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
             font-size: 12px;
             line-height: 20px;
-            font-weight: normal;
-            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            white-space: nowrap;
             background-color: rgba(255, 255, 255, 0.5);
             color: rgba(0, 0, 0, 0.75);
         }
 
-        /* One label for each side of the slider */
-        .side-label {
-            position: absolute;
-            z-index: 1;
-            top: 10px;
-            width: 150px;
-            padding: 6px 0;
-            border-radius: 3px;
-            background: #3887be;
+        #coords {
+            font-variant-numeric: tabular-nums;
+            border-right: 1px solid rgba(0, 0, 0, 0.2);
+        }
+
+        #footer > div:empty { display: none; }
+
+        #coords.copied {
+            background-color: #3887be;
             color: #fff;
-            font-family: 'Open Sans', sans-serif;
-            font-size: 13px;
-            line-height: 17px;
-            text-align: center;
         }
 
-        .side-label small {
-            display: block;
-            font-size: 11px;
-            opacity: 0.85;
-        }
-
-        #label-s2dr { left: 10px; }
-        #label-truth { right: 10px; background: #2e7d4f; }
-
-        /* Shown while either side is still fetching tiles */
+        /* Shown while any panel is still fetching tiles */
         #loader {
             position: absolute;
-            z-index: 1;
+            z-index: 2;
             top: 10px;
             left: 50%;
             transform: translateX(-50%);
@@ -86,7 +157,6 @@
             border-radius: 3px;
             background: rgba(17, 17, 17, 0.8);
             color: #fff;
-            font-family: 'Open Sans', sans-serif;
             font-size: 13px;
             line-height: 17px;
             white-space: nowrap;
@@ -118,7 +188,7 @@
         #error {
             display: none;
             position: absolute;
-            z-index: 2;
+            z-index: 3;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -128,24 +198,61 @@
             border-radius: 3px;
             background: #fff;
             color: #404040;
-            font-family: 'Open Sans', sans-serif;
             font-size: 14px;
             line-height: 20px;
             -webkit-user-select: text;
             user-select: text;
             overflow-wrap: anywhere;
         }
+
+        /* Narrow screens: stack the three squares */
+        @media (max-width: 700px) {
+            :root {
+                --size: min(calc(100vw - 32px), calc((100vh - 150px) / 3));
+            }
+
+            #panels {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .panel-label {
+                margin-bottom: 3px;
+                padding: 3px 8px;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div id="label-s2dr" class="side-label"></div>
-<div id="label-truth" class="side-label"></div>
-<div id="comparison-container">
-    <div id="before" class="map"></div>
-    <div id="after" class="map"></div>
+<main id="panels">
+    <section class="panel">
+        <div id="label-s2" class="panel-label"></div>
+        <div class="map-wrap">
+            <div id="map-s2" class="map"></div>
+            <div class="cursor"></div>
+        </div>
+    </section>
+    <section class="panel">
+        <div id="label-s2dr" class="panel-label"></div>
+        <div class="map-wrap">
+            <div id="map-s2dr" class="map"></div>
+            <div class="cursor"></div>
+        </div>
+    </section>
+    <section class="panel">
+        <div id="label-truth" class="panel-label"></div>
+        <div class="map-wrap">
+            <div id="map-truth" class="map"></div>
+            <div class="cursor"></div>
+            <div id="truth-message" class="panel-message"></div>
+        </div>
+    </section>
+</main>
+<div id="footer">
+    <div id="coords" title="Right-click on a map to copy the coordinates"></div>
+    <div id="attribution"></div>
 </div>
-<div id="attribution" class="mapbox-attribution-container"></div>
 <div id="loader" role="status" aria-live="polite">Loading imagery…</div>
 <div id="error"></div>
 
@@ -153,7 +260,7 @@
     // Usage:
     //   NAIP (US only):  s2dr3-ground-truth.html?ds=<dataset id>&gt=naip&naip=<year>#<zoom>/<lat>/<lon>
     //   Vantor:          s2dr3-ground-truth.html?ds=<dataset id>&gt=vantor&vantor=<event>/<acquisition id>#<zoom>/<lat>/<lon>
-    // Left: the S2DR3 dataset. Right: the ground-truth imagery.
+    // Panels, left to right: Sentinel-2, S2DR3, ground truth. All three pan and zoom together.
     // gt defaults to naip, and naip defaults to the dataset's year.
     const TILE_ROOT = 'https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad';
     const BUCKET = 's3://s2dr3-output-prod';
@@ -169,10 +276,10 @@
     const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const EXAMPLES = 'for example ?ds=ES-T30SYJ-f07fe154a-20241110&gt=vantor&vantor=Floods-Spain-Oct24/1030010108767300#15/39.42/-0.41 ' +
         'or ?ds=US-T14SLH-a67a025e5-20230714&gt=naip&naip=2023#14/37.97/-100.87';
+    const EMPTY_STYLE = { version: 8, sources: {}, layers: [] };
 
     function showError(message) {
-        document.getElementById('label-truth').style.display = 'none';
-        document.getElementById('label-s2dr').style.display = 'none';
+        document.getElementById('panels').style.display = 'none';
         document.getElementById('loader').classList.remove('visible');
         const error = document.getElementById('error');
         error.textContent = message;
@@ -306,14 +413,148 @@
         };
     }
 
-    function rasterStyle(sources) {
+    function rasterStyle(sources, paint) {
         const style = { version: 8, sources: {}, layers: [] };
         sources.forEach((source, index) => {
             const id = `imagery-${index}`;
             style.sources[id] = Object.assign({ type: 'raster', tileSize: 256 }, source);
-            style.layers.push({ id: id, source: id, type: 'raster', minzoom: 0, maxzoom: 19 });
+            style.layers.push({ id: id, source: id, type: 'raster', minzoom: 0, maxzoom: 19, paint: paint || {} });
         });
         return style;
+    }
+
+    function createMap(container, style, view, hash) {
+        const map = new mapboxgl.Map({
+            container: container,
+            hash: hash,
+            style: style,
+            center: view.center,
+            maxZoom: 18,
+            zoom: view.zoom
+        });
+        // North stays up in every panel so they line up.
+        map.dragRotate.disable();
+        map.touchZoomRotate.disableRotation();
+        return map;
+    }
+
+    // Moving any map moves the other two to the same center and zoom.
+    function syncMaps(maps) {
+        let syncing = false;
+        maps.forEach((source) => {
+            source.on('move', () => {
+                if (syncing) {
+                    return;
+                }
+                syncing = true;
+                const view = { center: source.getCenter(), zoom: source.getZoom() };
+                maps.forEach((target) => {
+                    if (target !== source) {
+                        target.jumpTo(view);
+                    }
+                });
+                syncing = false;
+            });
+        });
+    }
+
+    // Keep the loader up until every map has settled. This checks the tile
+    // state directly because 'idle' doesn't fire after a 404, which is what
+    // tiles outside a dataset return when someone pans past its edge.
+    function setUpLoader(maps) {
+        const loader = document.getElementById('loader');
+        let loaderTimer = null;
+        const hideLoaderWhenDone = () => {
+            if (maps.every((map) => map.loaded() && map.areTilesLoaded())) {
+                loader.classList.remove('visible');
+                clearInterval(loaderTimer);
+                loaderTimer = null;
+            }
+        };
+        const showLoader = () => {
+            loader.classList.add('visible');
+            if (loaderTimer === null) {
+                loaderTimer = setInterval(hideLoaderWhenDone, 250);
+            }
+        };
+        maps.forEach((map) => map.on('dataloading', showLoader));
+        showLoader();
+    }
+
+    // Shows the cursor position as decimal lat, lon in the footer, marks it in
+    // the other panels, and copies it to the clipboard on right-click.
+    function setUpCoordinates(maps) {
+        const coords = document.getElementById('coords');
+        const cursors = maps.map((map) => map.getContainer().parentElement.querySelector('.cursor'));
+        const formatLatLon = (lngLat) => lngLat.lat.toFixed(6) + ', ' + lngLat.lng.toFixed(6);
+        let copiedTimer = null;
+
+        // Fallback for plain http, local files, or browsers that block the Clipboard API
+        const copyWithTextarea = (text) => {
+            const field = document.createElement('textarea');
+            field.value = text;
+            field.style.position = 'fixed';
+            field.style.opacity = '0';
+            document.body.appendChild(field);
+            field.select();
+            const ok = document.execCommand('copy');
+            document.body.removeChild(field);
+            return ok ? Promise.resolve() : Promise.reject(new Error('copy failed'));
+        };
+        const copyText = (text) => {
+            if (navigator.clipboard && window.isSecureContext) {
+                return navigator.clipboard.writeText(text).catch(() => copyWithTextarea(text));
+            }
+            return copyWithTextarea(text);
+        };
+
+        const hideCursors = () => cursors.forEach((cursor) => { cursor.style.display = 'none'; });
+
+        maps.forEach((map, index) => {
+            map.on('mousemove', (event) => {
+                if (copiedTimer === null) {
+                    coords.textContent = formatLatLon(event.lngLat);
+                }
+                maps.forEach((other, otherIndex) => {
+                    const cursor = cursors[otherIndex];
+                    if (otherIndex === index) {
+                        cursor.style.display = 'none';
+                        return;
+                    }
+                    const point = other.project(event.lngLat);
+                    cursor.style.left = point.x + 'px';
+                    cursor.style.top = point.y + 'px';
+                    cursor.style.display = 'block';
+                });
+            });
+            map.getContainer().addEventListener('mouseleave', () => {
+                hideCursors();
+                if (copiedTimer === null) {
+                    coords.textContent = '';
+                }
+            });
+            map.on('contextmenu', (event) => {
+                event.preventDefault();
+                const text = formatLatLon(event.lngLat);
+                copyText(text).then(() => {
+                    coords.textContent = 'Copied ' + text;
+                    coords.classList.add('copied');
+                }).catch(() => {
+                    coords.textContent = 'Could not copy ' + text;
+                }).finally(() => {
+                    clearTimeout(copiedTimer);
+                    copiedTimer = setTimeout(() => {
+                        coords.classList.remove('copied');
+                        coords.textContent = text;
+                        copiedTimer = null;
+                    }, 1500);
+                });
+            });
+        });
+    }
+
+    function whenStyleLoaded(map) {
+        return map.isStyleLoaded() ? Promise.resolve() : new Promise((resolve) => map.once('load', resolve));
     }
 
     async function start() {
@@ -331,9 +572,24 @@
             return;
         }
 
-        setLabel('label-s2dr', 'S2DR3', dataset.date);
+        setLabel('label-s2', 'Sentinel-2', `${dataset.date} · 10 m`);
+        setLabel('label-s2dr', 'S2DR3', `${dataset.date} · 1 m`);
         setLabel('label-truth', groundTruth === 'naip' ? 'NAIP aerial' : 'Vantor', 'loading…');
-        document.getElementById('loader').classList.add('visible');
+        document.getElementById('attribution').textContent = '© ESA | © Gamma Earth';
+
+        mapboxgl.accessToken = 'pk.eyJ1IjoiZ2lyaXNocGFsbGFnYXR0aSIsImEiOiJja2h6NGVuc20wYndjMnlxaDExbzlsa3B2In0.e94ZfcoPleAA2nqjeX10ag';
+
+        const tileUrl = (prefix) => `${TILE_ROOT}/{z}/{x}/{y}@2x?url=${dataset.path}/${prefix}_${dataset.pid}_TCI.tif`;
+        // Sentinel-2 keeps its 10 m pixels sharp rather than smoothed.
+        const s2Map = createMap('map-s2', rasterStyle([{ tiles: [tileUrl('S2L2A')] }], { 'raster-resampling': 'nearest' }), view, false);
+        const s2drMap = createMap('map-s2dr', rasterStyle([{ tiles: [tileUrl('S2L2Ax10')] }]), view, true);
+        // The ground-truth panel starts empty and fills in once its imagery is found.
+        const truthMap = createMap('map-truth', EMPTY_STYLE, view, false);
+        const maps = [s2Map, s2drMap, truthMap];
+
+        syncMaps(maps);
+        setUpLoader(maps);
+        setUpCoordinates(maps);
 
         let truth;
         try {
@@ -341,55 +597,20 @@
                 ? await naipSource(naipYear, view.center)
                 : await vantorSource(vantor[1], vantor[2]);
         } catch (err) {
-            showError(`The ground-truth imagery could not be loaded (${err.message}). Please check the link or try again later.`);
+            setLabel('label-truth', groundTruth === 'naip' ? 'NAIP aerial' : 'Vantor', 'not available');
+            const message = document.getElementById('truth-message');
+            message.textContent = `The ground-truth imagery could not be loaded (${err.message}). Please check the link or try again later.`;
+            message.style.display = 'flex';
             return;
         }
 
         setLabel('label-truth', truth.title, truth.detail);
         document.getElementById('attribution').textContent = `© ESA | © Gamma Earth | ${truth.attribution}`;
 
-        mapboxgl.accessToken = 'pk.eyJ1IjoiZ2lyaXNocGFsbGFnYXR0aSIsImEiOiJja2h6NGVuc20wYndjMnlxaDExbzlsa3B2In0.e94ZfcoPleAA2nqjeX10ag';
-
-        const beforeMap = new mapboxgl.Map({
-            container: 'before',
-            hash: true,
-            style: rasterStyle([{ tiles: [`${TILE_ROOT}/{z}/{x}/{y}@2x?url=${dataset.path}/S2L2Ax10_${dataset.pid}_TCI.tif`] }]),
-            center: view.center,
-            maxZoom: 18,
-            zoom: view.zoom
-        });
-
-        const afterMap = new mapboxgl.Map({
-            container: 'after',
-            style: rasterStyle(truth.sources),
-            center: view.center,
-            maxZoom: 18,
-            zoom: view.zoom
-        });
-
-        new mapboxgl.Compare(beforeMap, afterMap, '#comparison-container');
-
-        // Keep the loader up until both sides have settled. This checks the tile
-        // state directly because 'idle' doesn't fire after a 404, which is what
-        // tiles outside a dataset return when someone pans past its edge.
-        const loader = document.getElementById('loader');
-        const maps = [beforeMap, afterMap];
-        let loaderTimer = null;
-        const hideLoaderWhenDone = () => {
-            if (maps.every((map) => map.loaded() && map.areTilesLoaded())) {
-                loader.classList.remove('visible');
-                clearInterval(loaderTimer);
-                loaderTimer = null;
-            }
-        };
-        const showLoader = () => {
-            loader.classList.add('visible');
-            if (loaderTimer === null) {
-                loaderTimer = setInterval(hideLoaderWhenDone, 250);
-            }
-        };
-        maps.forEach((map) => map.on('dataloading', showLoader));
-        showLoader();
+        await whenStyleLoaded(truthMap);
+        const style = rasterStyle(truth.sources);
+        Object.entries(style.sources).forEach(([id, source]) => truthMap.addSource(id, source));
+        style.layers.forEach((layer) => truthMap.addLayer(layer));
     }
 
     start();
