@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HS2 Corridor Timeline</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root {
+  --bg: #f4f5f7; --panel: rgba(255,255,255,.94); --ink: #16181d; --muted: #5d6470; --line: #d9dde3;
+  --accent: #0b6bcb; --accent-ink: #fff; --b: #c2410c; --b-ink: #fff; --track: #c7ccd4; --shadow: 0 2px 14px rgba(15,20,30,.14);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1115; --panel: rgba(24,27,33,.94); --ink: #eceef2; --muted: #9aa2ae; --line: #2d323b;
+  --accent: #4ea1ff; --accent-ink: #08111d; --b: #ff8a4c; --b-ink: #1a0d05; --track: #3a404a; --shadow: 0 2px 14px rgba(0,0,0,.5);
+} }
+:root[data-theme="dark"] {
+  --bg: #0f1115; --panel: rgba(24,27,33,.94); --ink: #eceef2; --muted: #9aa2ae; --line: #2d323b;
+  --accent: #4ea1ff; --accent-ink: #08111d; --b: #ff8a4c; --b-ink: #1a0d05; --track: #3a404a; --shadow: 0 2px 14px rgba(0,0,0,.5);
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
+  font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+#app { position: fixed; inset: 0; display: grid; grid-template-rows: 1fr auto; }
+#map { position: relative; background: var(--bg); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); backdrop-filter: blur(6px); }
+
+/* header + info */
+#head { position: absolute; z-index: 800; top: 12px; left: 12px; max-width: min(380px, calc(100% - 24px)); padding: 12px 14px; }
+#head h1 { font-size: 15px; margin: 0 0 2px; letter-spacing: .01em; }
+#head .sub { color: var(--muted); font-size: 12px; }
+#info { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 10px; display: grid; gap: 8px; }
+.scene-row { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: baseline; }
+.tag { font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace; padding: 4px 6px; border-radius: 5px; color: var(--accent-ink); background: var(--accent); }
+.tag.b { background: var(--b); color: var(--b-ink); }
+.story { color: var(--ink); }
+.stat { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 12px; }
+.hint { color: var(--muted); font-size: 12px; }
+
+/* layer controls */
+#ctrl { position: absolute; z-index: 800; top: 12px; right: 12px; padding: 10px 12px; display: grid; gap: 6px; min-width: 190px; }
+#ctrl label { display: flex; gap: 8px; align-items: center; cursor: pointer; user-select: none; }
+#ctrl .group-title { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-top: 4px; }
+#ctrl select { font: inherit; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 6px; padding: 3px 6px; width: 100%; }
+.legend { display: grid; gap: 3px; font-size: 12px; color: var(--muted); }
+.legend i { display: inline-block; width: 18px; height: 4px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+.legend i.sq { width: 11px; height: 11px; border-radius: 2px; }
+#ctrl .toggle-legend { display: none; }
+
+/* timeline */
+#timeline { position: relative; padding: 10px 16px 12px; border-top: 1px solid var(--line); background: var(--panel); }
+#tl-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+#tl-top .title { font-weight: 600; font-size: 13px; }
+#tl-top button { font: inherit; font-size: 12px; color: var(--muted); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; cursor: pointer; }
+#tl-top button:hover { color: var(--ink); }
+#track { position: relative; height: 74px; margin: 0 8px; }
+#axis { position: absolute; left: 0; right: 0; top: 40px; height: 2px; background: var(--track); border-radius: 1px; }
+.year { position: absolute; top: 48px; transform: translateX(-50%); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.year::before { content: ""; position: absolute; left: 50%; top: -9px; width: 1px; height: 6px; background: var(--track); }
+.chip { position: absolute; top: 0; transform: translateX(-50%); display: grid; justify-items: center; gap: 4px;
+  background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink); font: inherit; }
+.chip .lbl { font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace; padding: 5px 7px; border-radius: 6px;
+  border: 1px solid var(--line); background: var(--bg); white-space: nowrap; transition: background .12s, color .12s, border-color .12s; }
+.chip .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--muted); margin-top: 8px; }
+.chip:hover .lbl { border-color: var(--muted); }
+.chip:focus-visible { outline: none; }
+.chip:focus-visible .lbl { outline: 2px solid var(--accent); outline-offset: 2px; }
+.chip.sel-a .lbl { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.chip.sel-a .dot { background: var(--accent); border-color: var(--accent); }
+.chip.sel-b .lbl { background: var(--b); color: var(--b-ink); border-color: var(--b); }
+.chip.sel-b .dot { background: var(--b); border-color: var(--b); }
+.chip.pending { cursor: not-allowed; }
+.chip.pending .lbl { color: var(--muted); border-style: dashed; background: transparent; }
+.chip.pending .dot { border-style: dashed; }
+#zoomHint { position: absolute; z-index: 760; left: 50%; bottom: 14px; transform: translateX(-50%); padding: 7px 12px; font-size: 12px; display: none; cursor: pointer; }
+
+/* swipe */
+#swipe { position: absolute; z-index: 700; top: 0; bottom: 0; width: 0; display: none; }
+#swipe .bar { position: absolute; top: 0; bottom: 0; left: -1.5px; width: 3px; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.35); }
+#swipe .handle { position: absolute; top: 50%; left: -19px; width: 38px; height: 38px; margin-top: -19px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,.4); cursor: ew-resize; display: grid; place-items: center; touch-action: none; }
+#swipe .handle svg { width: 20px; height: 20px; color: #333; }
+.side-tag { position: absolute; z-index: 750; top: 12px; display: none; pointer-events: none; }
+#tagA { right: calc(100% + 10px); } #tagB { left: 10px; }
+
+.km-label { font: 600 10px/1 ui-monospace, Menlo, monospace; color: #111; background: rgba(255,255,255,.85); padding: 2px 4px; border-radius: 3px; white-space: nowrap; border: 1px solid rgba(0,0,0,.2); }
+.leaflet-container { background: var(--bg); font: inherit; }
+.leaflet-control-attribution { font-size: 10px; }
+
+@media (max-width: 720px) {
+  #head { max-width: calc(100% - 24px); }
+  #ctrl { top: auto; bottom: 12px; right: 12px; min-width: 0; }
+  #ctrl .legend { display: none; }
+  #track { height: 70px; }
+  .chip .lbl { font-size: 10px; padding: 4px 5px; }
+  .chip:not(.sel-a):not(.sel-b) .lbl .yr-only { display: inline; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="map">
+    <div id="head" class="card">
+      <h1>HS2 Phase One · Greatworth – Southam</h1>
+      <div class="sub">Chainage 101+000 to 126+000 · 1 km corridor · <span id="srcLabel"></span></div>
+      <div id="info"></div>
+    </div>
+    <div id="ctrl" class="card">
+      <div class="group-title">Imagery</div>
+      <select id="source" aria-label="Imagery source"></select>
+      <div class="group-title">Overlays</div>
+      <label><input type="checkbox" id="optLine" checked> HS2 centreline</label>
+      <label><input type="checkbox" id="optKm" checked> Chainage (km)</label>
+      <label><input type="checkbox" id="optMask"> Bare-ground mask</label>
+      <div class="legend" id="lineLegend"></div>
+      <div class="legend" id="maskLegend" hidden>
+        <span><i class="sq" style="background:#ff3b30"></i>New bare ground since baseline</span>
+        <span><i class="sq" style="background:#ffb340"></i>Bare, already bare at baseline</span>
+        <span><i class="sq" style="background:#c8c8c8"></i>Bare outside the works zone</span>
+      </div>
+      <div class="group-title">Background</div>
+      <select id="basemap" aria-label="Background map">
+        <option value="none">None</option>
+        <option value="map" selected>Map</option>
+        <option value="sat">Satellite (Esri)</option>
+      </select>
+    </div>
+    <div id="zoomHint" class="card" role="button" tabindex="0">Zoom in to see the 1 m tiles</div>
+    <div id="swipe"><div class="bar"></div>
+      <div class="handle" role="slider" aria-label="Before/after divider" tabindex="0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg>
+      </div>
+      <div id="tagA" class="side-tag tag"></div><div id="tagB" class="side-tag tag b"></div>
+    </div>
+  </div>
+  <div id="timeline">
+    <div id="tl-top">
+      <span class="title">Timeline</span>
+      <span class="hint" id="tlHint">Click a date to show it · click a second date to compare</span>
+      <button id="clearBtn" type="button">Clear comparison</button>
+    </div>
+    <div id="track"><div id="axis"></div></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="data/scenes.js"></script>
+<script src="data/overlays.js"></script>
+<script>
+(() => {
+  const DATA = window.HS2_DATA, OV = window.HS2_OVERLAYS;
+  const $ = s => document.querySelector(s);
+  const store = { get(k, d) { try { return localStorage.getItem("hs2v." + k) ?? d; } catch { return d; } },
+                  set(k, v) { try { localStorage.setItem("hs2v." + k, v); } catch {} } };
+
+  // ---------- map, panes ----------
+  const map = L.map("map", { zoomControl: false, preferCanvas: false, attributionControl: true });
+  L.control.zoom({ position: "bottomleft" }).addTo(map);
+  map.attributionControl.addAttribution("Contains modified Copernicus Sentinel data 2019–2026 · S2DR3 super-resolution © Gamma Earth");
+  const panes = { base: 200, sceneA: 300, sceneB: 310, maskA: 320, maskB: 330, lines: 450, labels: 460 };
+  for (const [n, z] of Object.entries(panes)) { const p = map.createPane(n); p.style.zIndex = z; }
+  map.getPane("lines").style.pointerEvents = "none";
+  map.getPane("labels").style.pointerEvents = "none";
+
+  const basemaps = {
+    map: L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      { pane: "base", maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }),
+    sat: L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      { pane: "base", maxZoom: 19, attribution: "Esri, Maxar, Earthstar Geographics" }),
+  };
+  let currentBase = null;
+  function setBase(v) {
+    if (currentBase) map.removeLayer(currentBase);
+    currentBase = basemaps[v] || null;
+    if (currentBase) currentBase.addTo(map);
+    store.set("base", v);
+  }
+
+  // ---------- overlays ----------
+  const TYPE_STYLE = {
+    "Cutting": "#f59e0b", "Embankment": "#10b981", "Viaduct": "#3b82f6", "Green Tunnel": "#a855f7",
+    "Bored Tunnel": "#6b21a8", "Tunnel Portal": "#6b21a8", "Retaining Wall": "#ef4444", "Station": "#111827"
+  };
+  const typeLayer = L.geoJSON(OV.types, { pane: "lines", interactive: false,
+    style: f => ({ color: TYPE_STYLE[f.properties.type] || "#e11d48", weight: 4, opacity: .95, lineCap: "butt" }) });
+  const caseLayer = L.geoJSON(OV.centreline, { pane: "lines", interactive: false, style: { color: "#000", weight: 6.5, opacity: .55 } });
+  const lineGroup = L.layerGroup([caseLayer, typeLayer]);
+  const kmGroup = L.layerGroup(OV.km.features.map(f => {
+    const [x, y] = f.geometry.coordinates;
+    return L.marker([y, x], { pane: "labels", interactive: false, keyboard: false,
+      icon: L.divIcon({ className: "", html: `<span class="km-label">${f.properties.label}</span>`, iconSize: null, iconAnchor: [-6, 8] }) });
+  }));
+  const used = [...new Set(OV.types.features.map(f => f.properties.type))];
+  $("#lineLegend").innerHTML = used.map(t => `<span><i style="background:${TYPE_STYLE[t] || "#e11d48"}"></i>${t}</span>`).join("");
+
+  // ---------- data ----------
+  const sourceIds = Object.keys(DATA.sources);
+  const ready = s => !!(s.tiles || s.image);
+  const nReady = id => DATA.sources[id].scenes.filter(ready).length;
+  let sourceId = sourceIds.includes(store.get("source")) && nReady(store.get("source")) ? store.get("source")
+               : [...sourceIds].sort((a, b) => nReady(b) - nReady(a))[0];
+  const sel = [];                           // selected dates, max 2, in click order
+  let layers = { sceneA: null, sceneB: null, maskA: null, maskB: null };
+  let swipeX = 0.5;
+
+  const scenes = () => DATA.sources[sourceId].scenes;
+  const byDate = d => scenes().find(s => s.date === d && ready(s));
+  const fmt = d => new Date(d + "T00:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+
+  function makeLayer(spec, pane) {
+    if (!spec) return null;
+    if (Array.isArray(spec)) return L.layerGroup(spec.map(p => makeLayer(p, pane)));   // several parts of one date
+    if (spec.url && spec.url.includes("{z}"))
+      return L.tileLayer(spec.url, { pane, maxNativeZoom: spec.maxZoom, minNativeZoom: spec.minZoom, maxZoom: 20,
+        // live tiles (TiTiler) are only served from their minZoom; don't scale hundreds of them down below it
+        minZoom: spec.url.includes("/cog/tiles/") ? spec.minZoom : 0,
+        bounds: spec.bounds, keepBuffer: 4, updateWhenZooming: false,
+        // tiles that would be empty (outside the corridor) are not written; show nothing for them
+        errorTileUrl: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" });
+    return L.imageOverlay(spec.url, spec.bounds, { pane, interactive: false });
+  }
+  function sceneLayer(s, pane) { return makeLayer(s.tiles || s.image, pane); }
+  function maskLayer(s, pane) { return makeLayer(s.mask_tiles || s.mask, pane); }
+
+  // ---------- render ----------
+  function ordered() { return [...sel].sort(); }            // earlier date = A (left), later = B (right)
+
+  function render() {
+    for (const k in layers) if (layers[k]) { map.removeLayer(layers[k]); layers[k] = null; }
+    const [a, b] = ordered().map(byDate);
+    const showMask = $("#optMask").checked;
+    if (a) { layers.sceneA = sceneLayer(a, "sceneA").addTo(map); if (showMask) layers.maskA = maskLayer(a, "maskA")?.addTo(map) || null; }
+    if (b) { layers.sceneB = sceneLayer(b, "sceneB").addTo(map); if (showMask) layers.maskB = maskLayer(b, "maskB")?.addTo(map) || null; }
+    const compare = !!b;
+    $("#swipe").style.display = compare ? "block" : "none";
+    for (const t of ["#tagA", "#tagB"]) $(t).style.display = compare ? "block" : "none";
+    if (compare) { $("#tagA").textContent = a.date; $("#tagB").textContent = b.date; }
+    $("#clearBtn").style.visibility = compare ? "visible" : "hidden";
+    $("#tlHint").textContent = compare ? "Drag the divider to compare · click a selected date to remove it"
+                                       : "Click a date to show it · click a second date to compare";
+    updateClip();
+    renderInfo(a, b);
+    renderChips();
+    store.set("sel", sel.join(","));
+  }
+
+  function renderInfo(a, b) {
+    const row = (s, cls) => {
+      const st = s.stats ? `${Math.round(s.stats.new_bare_ha)} ha new bare` : "";
+      return `<div class="scene-row"><span class="tag ${cls}">${s.date}</span><span class="story">${s.story || ""}</span><span class="stat" title="New bare ground within 300 m of the centreline, net of the farmland rate, relative to the first date">${st}</span></div>`;
+    };
+    let html = "";
+    if (a) html += row(a, "");
+    if (b) {
+      html += row(b, "b");
+      if (a.stats && b.stats) {
+        const d = b.stats.new_bare_ha - a.stats.new_bare_ha;
+        html += `<div class="hint">Change ${fmt(a.date)} → ${fmt(b.date)}: <b style="color:var(--ink)">${d >= 0 ? "+" : ""}${Math.round(d)} ha</b> of new bare ground in the works zone</div>`;
+      }
+    }
+    if (!a) html = `<div class="hint">Pick a date on the timeline below.</div>`;
+    $("#info").innerHTML = html;
+    $("#srcLabel").textContent = DATA.sources[sourceId].label;
+  }
+
+  // ---------- timeline ----------
+  const track = $("#track");
+  function tpos(d) {
+    const all = Object.values(DATA.sources).flatMap(s => s.scenes.map(x => x.date)).sort();
+    const y0 = Date.UTC(+all[0].slice(0, 4), 0, 1), y1 = Date.UTC(+all[all.length - 1].slice(0, 4) + 1, 0, 1);
+    const t = Date.parse(d + "T00:00:00Z");
+    return (t - y0) / (y1 - y0);
+  }
+  function renderAxis() {
+    track.querySelectorAll(".year").forEach(e => e.remove());
+    const all = Object.values(DATA.sources).flatMap(s => s.scenes.map(x => x.date)).sort();
+    for (let y = +all[0].slice(0, 4); y <= +all[all.length - 1].slice(0, 4) + 1; y++) {
+      const el = document.createElement("div"); el.className = "year"; el.textContent = y;
+      el.style.left = (tpos(`${y}-01-01`) * 100) + "%"; track.appendChild(el);
+    }
+  }
+  function renderChips() {
+    track.querySelectorAll(".chip").forEach(e => e.remove());
+    const [a, b] = ordered();
+    for (const s of scenes()) {
+      const c = document.createElement("button");
+      c.type = "button"; c.className = "chip" + (s.date === a ? " sel-a" : "") + (s.date === b ? " sel-b" : "") + (ready(s) ? "" : " pending");
+      c.style.left = (tpos(s.date) * 100) + "%";
+      c.setAttribute("aria-pressed", sel.includes(s.date));
+      c.title = ready(s) ? `${fmt(s.date)} — ${s.story || ""}${s.pending ? " (some parts still processing)" : ""}`
+                         : `${fmt(s.date)} — still processing at Gamma Earth`;
+      c.innerHTML = `<span class="lbl">${s.date}</span><span class="dot"></span>`;
+      if (ready(s)) c.addEventListener("click", () => toggle(s.date)); else c.setAttribute("aria-disabled", "true");
+      track.appendChild(c);
+    }
+  }
+  function toggle(d) {
+    const i = sel.indexOf(d);
+    if (i >= 0) sel.splice(i, 1);
+    else { sel.push(d); if (sel.length > 2) sel.shift(); }   // keep the two most recently picked
+    render();
+  }
+  $("#clearBtn").addEventListener("click", () => { const last = sel[sel.length - 1]; sel.length = 0; if (last) sel.push(last); render(); });
+
+  // keyboard: ← → step through dates in single mode
+  document.addEventListener("keydown", e => {
+    if (e.target.closest && e.target.closest("select, input")) return;
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    if (document.activeElement === handle) return;
+    const ds = scenes().filter(ready).map(s => s.date);
+    const cur = sel.length ? sel[sel.length - 1] : ds[0];
+    const j = Math.max(0, Math.min(ds.length - 1, ds.indexOf(cur) + (e.key === "ArrowRight" ? 1 : -1)));
+    sel.length = 0; sel.push(ds[j]); render();
+  });
+
+  // ---------- swipe ----------
+  const swipe = $("#swipe"), handle = swipe.querySelector(".handle");
+  function updateClip() {
+    const size = map.getSize();
+    const x = Math.round(size.x * swipeX);
+    swipe.style.left = x + "px";
+    const nw = map.containerPointToLayerPoint([0, 0]), se = map.containerPointToLayerPoint(size);
+    const cx = nw.x + x;
+    const compare = sel.length === 2;
+    for (const p of ["sceneA", "maskA"]) map.getPane(p).style.clip = compare ? `rect(${nw.y}px, ${cx}px, ${se.y}px, ${nw.x}px)` : "";
+    for (const p of ["sceneB", "maskB"]) map.getPane(p).style.clip = compare ? `rect(${nw.y}px, ${se.x}px, ${se.y}px, ${cx}px)` : "";
+  }
+  map.on("move zoom resize zoomend moveend", updateClip);
+  let dragging = false;
+  const setFromEvent = ev => {
+    const r = map.getContainer().getBoundingClientRect();
+    swipeX = Math.max(0.02, Math.min(0.98, (ev.clientX - r.left) / r.width)); updateClip();
+  };
+  handle.addEventListener("pointerdown", e => { dragging = true; handle.setPointerCapture(e.pointerId); map.dragging.disable(); e.preventDefault(); });
+  handle.addEventListener("pointermove", e => { if (dragging) setFromEvent(e); });
+  handle.addEventListener("pointerup", e => { dragging = false; handle.releasePointerCapture(e.pointerId); map.dragging.enable(); });
+  handle.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft") { swipeX = Math.max(.02, swipeX - .03); updateClip(); e.preventDefault(); }
+    if (e.key === "ArrowRight") { swipeX = Math.min(.98, swipeX + .03); updateClip(); e.preventDefault(); }
+  });
+  L.DomEvent.disableClickPropagation(swipe);
+
+  // ---------- controls ----------
+  const srcSel = $("#source");
+  srcSel.innerHTML = sourceIds.map(id => `<option value="${id}">${DATA.sources[id].label}</option>`).join("");
+  srcSel.value = sourceId;
+  srcSel.disabled = sourceIds.length < 2;
+  srcSel.addEventListener("change", () => {
+    sourceId = srcSel.value; store.set("source", sourceId);
+    const avail = new Set(scenes().filter(ready).map(s => s.date));
+    for (let i = sel.length - 1; i >= 0; i--) if (!avail.has(sel[i])) sel.splice(i, 1);
+    if (!sel.length && avail.size) sel.push([...avail].sort().pop());
+    render(); checkZoom(true);
+  });
+  const optLine = $("#optLine"), optKm = $("#optKm"), optMask = $("#optMask");
+  const syncOverlays = () => {
+    optLine.checked ? lineGroup.addTo(map) : map.removeLayer(lineGroup);
+    $("#lineLegend").hidden = !optLine.checked;
+    (optKm.checked && map.getZoom() >= 12) ? kmGroup.addTo(map) : map.removeLayer(kmGroup);
+    $("#maskLegend").hidden = !optMask.checked;
+    store.set("ov", [+optLine.checked, +optKm.checked, +optMask.checked].join(""));
+  };
+  const ov = store.get("ov", "110");
+  [optLine.checked, optKm.checked, optMask.checked] = [...ov].map(c => c === "1");
+  optLine.addEventListener("change", syncOverlays);
+  optKm.addEventListener("change", syncOverlays);
+  optMask.addEventListener("change", () => { syncOverlays(); render(); });
+  map.on("zoomend", syncOverlays);
+  const baseSel = $("#basemap");
+  baseSel.value = store.get("base", "map");
+  baseSel.addEventListener("change", () => setBase(baseSel.value));
+
+  // ---------- zoom hint for sources served only at high zoom ----------
+  function checkZoom(jump) {
+    const mz = DATA.sources[sourceId].minZoom || 0;
+    const low = map.getZoom() < mz;
+    $("#zoomHint").style.display = low && sel.length ? "block" : "none";
+    if (low && jump && sel.length) zoomIn();
+  }
+  function zoomIn() {
+    const s = byDate(ordered().pop()); const sp = s && (s.tiles || s.image);
+    const b = Array.isArray(sp) ? sp[0].bounds : sp?.bounds;
+    const c = map.getBounds().intersects(b || map.getBounds()) ? map.getCenter() : L.latLngBounds(b).getCenter();
+    map.setView(b && !L.latLngBounds(b).contains(c) ? L.latLngBounds(b).getCenter() : c, (DATA.sources[sourceId].minZoom || 0) + 2);
+  }
+  $("#zoomHint").addEventListener("click", zoomIn);
+  map.on("zoomend", () => checkZoom(false));
+
+  // ---------- start ----------
+  const first = Object.values(DATA.sources).flatMap(x => x.scenes).find(s => s.image) || scenes().find(ready);
+  const b0 = first.image?.bounds || (Array.isArray(first.tiles) ? first.tiles[0].bounds : first.tiles.bounds);
+  const fit = () => { map.invalidateSize(); map.fitBounds(b0, { padding: [20, 20] }); };
+  map.setView([(b0[0][0] + b0[1][0]) / 2, (b0[0][1] + b0[1][1]) / 2], 11);
+  requestAnimationFrame(fit);
+  setBase(baseSel.value);
+  const saved = (store.get("sel", "") || "").split(",").filter(d => byDate(d));
+  const rd = scenes().filter(ready).map(s => s.date);
+  sel.push(...(saved.length ? saved : rd.length > 1 ? [rd[0], rd[rd.length - 1]] : rd));
+  renderAxis(); syncOverlays(); render(); setTimeout(() => checkZoom(false), 400);
+})();
+</script>
+</body>
+</html>
