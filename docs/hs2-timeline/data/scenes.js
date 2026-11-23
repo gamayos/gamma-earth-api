@@ -219,37 +219,156 @@ window.HS2_DATA = {
      "date": "2019-06-29",
      "story": "Baseline before main works",
      "stats": null,
-     "pending": [
-      "T30UXC-623baaea6-20190629",
-      "T30UXC-2c991f5c4-20190629",
-      "T30UXC-833a16405-20190629"
+     "tiles": [
+      {
+       "url": "https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad/{z}/{x}/{y}?url=s3://s2dr3-output-prod/GB/T30UXC/T30UXC-38e384d64-20190629/S2L2Ax10_T30UXC-38e384d64-20190629_TCI.tif",
+       "minZoom": 11,
+       "maxZoom": 17,
+       "bounds": [
+        [
+         52.16313189670045,
+         -1.4271002765668386
+        ],
+        [
+         52.257599011109065,
+         -1.2996377370040175
+        ]
+       ],
+       "pid": "T30UXC-38e384d64-20190629"
+      },
+      {
+       "url": "https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad/{z}/{x}/{y}?url=s3://s2dr3-output-prod/GB/T30UXC/T30UXC-623baaea6-20190629/S2L2Ax10_T30UXC-623baaea6-20190629_TCI.tif",
+       "minZoom": 11,
+       "maxZoom": 17,
+       "bounds": [
+        [
+         52.06677338066955,
+         -1.3303702815524567
+        ],
+        [
+         52.176951381586534,
+         -1.15707909664416
+        ]
+       ],
+       "pid": "T30UXC-623baaea6-20190629"
+      }
      ]
     },
     {
      "date": "2021-06-15",
      "story": "Clearance, compounds, haul roads",
      "stats": null,
-     "pending": [
-      "T30UXC-2c991f5c4-20210615",
-      "T30UXC-833a16405-20210615"
+     "tiles": [
+      {
+       "url": "https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad/{z}/{x}/{y}?url=s3://s2dr3-output-prod/GB/T30UXC/T30UXC-38e384d64-20210615/S2L2Ax10_T30UXC-38e384d64-20210615_TCI.tif",
+       "minZoom": 11,
+       "maxZoom": 17,
+       "bounds": [
+        [
+         52.16313189670045,
+         -1.4271002765668386
+        ],
+        [
+         52.257599011109065,
+         -1.2996377370040175
+        ]
+       ],
+       "pid": "T30UXC-38e384d64-20210615"
+      },
+      {
+       "url": "https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad/{z}/{x}/{y}?url=s3://s2dr3-output-prod/GB/T30UXC/T30UXC-623baaea6-20210615/S2L2Ax10_T30UXC-623baaea6-20210615_TCI.tif",
+       "minZoom": 11,
+       "maxZoom": 17,
+       "bounds": [
+        [
+         52.06677338066955,
+         -1.3303702815524567
+        ],
+        [
+         52.176951381586534,
+         -1.15707909664416
+        ]
+       ],
+       "pid": "T30UXC-623baaea6-20210615"
+      }
      ]
     },
     {
      "date": "2023-06-13",
      "story": "Peak earthworks",
      "stats": null,
-     "pending": [
-      "T30UXC-2c991f5c4-20230613",
-      "T30UXC-833a16405-20230613"
+     "tiles": [
+      {
+       "url": "https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad/{z}/{x}/{y}?url=s3://s2dr3-output-prod/GB/T30UXC/T30UXC-38e384d64-20230613/S2L2Ax10_T30UXC-38e384d64-20230613_TCI.tif",
+       "minZoom": 11,
+       "maxZoom": 17,
+       "bounds": [
+        [
+         52.16313189670045,
+         -1.4271002765668386
+        ],
+        [
+         52.257599011109065,
+         -1.2996377370040175
+        ]
+       ],
+       "pid": "T30UXC-38e384d64-20230613"
+      },
+      {
+       "url": "https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad/{z}/{x}/{y}?url=s3://s2dr3-output-prod/GB/T30UXC/T30UXC-623baaea6-20230613/S2L2Ax10_T30UXC-623baaea6-20230613_TCI.tif",
+       "minZoom": 11,
+       "maxZoom": 17,
+       "bounds": [
+        [
+         52.06677338066955,
+         -1.3303702815524567
+        ],
+        [
+         52.176951381586534,
+         -1.15707909664416
+        ]
+       ],
+       "pid": "T30UXC-623baaea6-20230613"
+      }
      ]
     },
     {
      "date": "2024-06-02",
      "story": "Earthworks ramp-up / structures",
      "stats": null,
-     "pending": [
-      "T30UXC-2c991f5c4-20240602",
-      "T30UXC-833a16405-20240602"
+     "tiles": [
+      {
+       "url": "https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad/{z}/{x}/{y}?url=s3://s2dr3-output-prod/GB/T30UXC/T30UXC-38e384d64-20240602/S2L2Ax10_T30UXC-38e384d64-20240602_TCI.tif",
+       "minZoom": 11,
+       "maxZoom": 17,
+       "bounds": [
+        [
+         52.16313189670045,
+         -1.4271002765668386
+        ],
+        [
+         52.257599011109065,
+         -1.2996377370040175
+        ]
+       ],
+       "pid": "T30UXC-38e384d64-20240602"
+      },
+      {
+       "url": "https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad/{z}/{x}/{y}?url=s3://s2dr3-output-prod/GB/T30UXC/T30UXC-623baaea6-20240602/S2L2Ax10_T30UXC-623baaea6-20240602_TCI.tif",
+       "minZoom": 11,
+       "maxZoom": 17,
+       "bounds": [
+        [
+         52.06677338066955,
+         -1.3303702815524567
+        ],
+        [
+         52.176951381586534,
+         -1.15707909664416
+        ]
+       ],
+       "pid": "T30UXC-623baaea6-20240602"
+      }
      ]
     },
     {
@@ -272,11 +391,23 @@ window.HS2_DATA = {
         ]
        ],
        "pid": "T30UXC-38e384d64-20250619"
+      },
+      {
+       "url": "https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad/{z}/{x}/{y}?url=s3://s2dr3-output-prod/GB/T30UXC/T30UXC-623baaea6-20250619/S2L2Ax10_T30UXC-623baaea6-20250619_TCI.tif",
+       "minZoom": 11,
+       "maxZoom": 17,
+       "bounds": [
+        [
+         52.06677338066955,
+         -1.3303702815524567
+        ],
+        [
+         52.176951381586534,
+         -1.15707909664416
+        ]
+       ],
+       "pid": "T30UXC-623baaea6-20250619"
       }
-     ],
-     "pending": [
-      "T30UXC-2c991f5c4-20250619",
-      "T30UXC-833a16405-20250619"
      ]
     },
     {
@@ -299,11 +430,23 @@ window.HS2_DATA = {
         ]
        ],
        "pid": "T30UXC-38e384d64-20260527"
+      },
+      {
+       "url": "https://kgbbmarmdgv53gdb47pls2v2oe0qotcs.lambda-url.eu-central-1.on.aws/cog/tiles/WebMercatorQuad/{z}/{x}/{y}?url=s3://s2dr3-output-prod/GB/T30UXC/T30UXC-623baaea6-20260527/S2L2Ax10_T30UXC-623baaea6-20260527_TCI.tif",
+       "minZoom": 11,
+       "maxZoom": 17,
+       "bounds": [
+        [
+         52.06677338066955,
+         -1.3303702815524567
+        ],
+        [
+         52.176951381586534,
+         -1.15707909664416
+        ]
+       ],
+       "pid": "T30UXC-623baaea6-20260527"
       }
-     ],
-     "pending": [
-      "T30UXC-2c991f5c4-20260527",
-      "T30UXC-833a16405-20260527"
      ]
     }
    ]
